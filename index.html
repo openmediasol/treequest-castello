@@ -882,14 +882,65 @@
         // Cache de imágenes de Wikipedia
         const imagenesCache = {};
 
-        // Sistema de imágenes usando Picsum (servicio confiable)
-        // Cada especie tiene un ID único basado en hash para consistencia
+        // URLs de imágenes verificadas - usando Wikipedia API format
+        const IMAGENES_ESPECIES = {
+            "Phytolacca dioica": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Phytolacca_dioica_JPG1b.jpg",
+            "Ceratonia siliqua": "https://upload.wikimedia.org/wikipedia/commons/7/79/Ceratonia_siliqua%2C_CapoGrecale%2C_Sicily.jpg",
+            "Cupressus sempervirens": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Cupressus_sempervirens_-_Serralves.jpg",
+            "Lagerstroemia indica": "https://upload.wikimedia.org/wikipedia/commons/a/af/Lagerstroemia_indica_flowers.jpg",
+            "Washingtonia robusta": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Washingtonia_robusta_in_San_Jose.jpg",
+            "Celtis australis": "https://upload.wikimedia.org/wikipedia/commons/d/df/Celtis_australis_JPG1a.jpg",
+            "Platanus x hispanica": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Platane_Kl%C3%A4den.jpg",
+            "Cedrus libani": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Cedrus_libani_-_K%C3%B6ln_Flora-0170.jpg",
+            "Magnolia grandiflora": "https://upload.wikimedia.org/wikipedia/commons/d/db/Magnolia_grandiflora1Stuart_Yeates.jpg",
+            "Quercus ilex": "https://upload.wikimedia.org/wikipedia/commons/1/17/Quercus_ilex_rotundifolia.jpg",
+            "Ficus carica": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Figueira.jpg",
+            "Pinus pinea": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Pinus_pinea_-_Stone_Pine.jpg",
+            "Pinus halepensis": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Pinus_halepensis_cones.jpg",
+            "Juniperus oxycedrus": "https://upload.wikimedia.org/wikipedia/commons/5/50/Juniperus_oxycedrus_subsp._macrocarpa%2C_Sardinia.jpg",
+            "Tetraclinis articulata": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Tetraclinis_articulata_kz01.jpg",
+            "Atriplex halimus": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Atriplex_halimus_1.jpg",
+            "Ephedra nevadensis": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Ephedra_nevadensis_3.jpg",
+            "Suaeda vera": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Suaeda_vera.jpg",
+            "Ammophila arenaria": "https://upload.wikimedia.org/wikipedia/commons/7/79/Ammophila_arenaria_01.jpg",
+            "Jacaranda mimosifolia": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Jacaranda_mimosifolia_flowers.jpg",
+            "Acacia dealbata": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Acacia_dealbata-1.jpg",
+            "Sambucus nigra": "https://upload.wikimedia.org/wikipedia/commons/a/a3/Sambucus_nigra_01.jpg",
+            "Populus alba": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Populus_alba_Morton.jpg",
+            "Salix alba": "https://upload.wikimedia.org/wikipedia/commons/3/34/Salix_alba_Morton.jpg",
+            "Nerium oleander": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Nerium_oleander_flowers_leaves.jpg",
+            "Pistacia lentiscus": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Pistacia_lentiscus_g1.jpg",
+            "Arbutus unedo": "https://upload.wikimedia.org/wikipedia/commons/7/77/Arbutus_unedo_fruits.jpg",
+            "Rhamnus alaternus": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Rhamnus_alaternus.jpg",
+            "Acer negundo": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Acer_negundo_002.JPG",
+            "Fraxinus angustifolia": "https://upload.wikimedia.org/wikipedia/commons/7/70/Fraxinus_angustifolia_subsp._oxycarpa.jpg",
+            "Liquidambar styraciflua": "https://upload.wikimedia.org/wikipedia/commons/8/82/Liquidambar_styraciflua_03_by_Line1.jpg",
+            "Tilia platyphyllos": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Tilia_platyphyllos_002.jpg",
+            "Catalpa bignonioides": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Catalpa_bignonioides1.jpg",
+            "Koelreuteria paniculata": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Koelreuteria_paniculata1.jpg",
+            "Hibiscus syriacus": "https://upload.wikimedia.org/wikipedia/commons/8/89/Hibiscus_syriacus_2.jpg",
+            "Spiraea cantoniensis": "https://upload.wikimedia.org/wikipedia/commons/8/8c/Spiraea_cantoniensis_01.jpg",
+            "Cupressus arizonica": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Cupressus_arizonica_var_glabra.jpg",
+            "Pinus sylvestris": "https://upload.wikimedia.org/wikipedia/commons/4/46/Pinus_sylvestris_Torthorwald.jpg",
+            "Abies alba": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Abies_alba_cones.jpg",
+            "Thuja occidentalis": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Thuja_occidentalis_Morton.jpg",
+            "Ulmus minor": "https://upload.wikimedia.org/wikipedia/commons/0/00/Ulmus_minor_morton.jpg",
+            "Castanea sativa": "https://upload.wikimedia.org/wikipedia/commons/8/88/Castanea_sativa_001.jpg",
+            "Sorbus aucuparia": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Sorbus_aucuparia_fruit.jpg",
+            "Prunus avium": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Sweet_cherry.jpg",
+            "Acer campestre": "https://upload.wikimedia.org/wikipedia/commons/6/67/Acer_campestre_leaves.jpg",
+            "Sambucus ebulus": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Sambucus_ebulus_02.jpg",
+            "Hedera helix": "https://upload.wikimedia.org/wikipedia/commons/0/04/Hedera_helix_01.jpg",
+            "Vitis vinifera": "https://upload.wikimedia.org/wikipedia/commons/2/24/Vitis_vinifera_001.jpg",
+            "Ilex aquifolium": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Ilex_aquifolium.jpg",
+            "Laurus nobilis": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Laurus_nobilis_MHNT.jpg",
+            "Buxus sempervirens": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Buxus_sempervirens_in_garden.jpg",
+            "Taxus baccata": "https://upload.wikimedia.org/wikipedia/commons/2/21/Taxus_baccata01.jpg"
+        };
+
+        // Función para obtener imagen - usa Wikimedia directo (sin thumb) con fallback
         function getImagenEspecie(scientific, name) {
-            // Generar un ID de imagen consistente basado en el nombre científico
-            const hash = scientific.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
-            // Picsum tiene ~1000 imágenes, usamos IDs de naturaleza/plantas (10-200 range tiene buenas fotos)
-            const imageId = 10 + Math.abs(hash % 190);
-            return `https://picsum.photos/seed/${encodeURIComponent(scientific)}/400/300`;
+            return IMAGENES_ESPECIES[scientific] || null;
         }
 
         // Descripciones botánicas completas para cada especie
@@ -976,11 +1027,25 @@
                     'Común': 'bg-slate-400'
                 }[data.rarity] || 'bg-slate-400';
 
+                const bgRareza = {
+                    'Legendario': 'from-yellow-100 to-yellow-200',
+                    'Raro': 'from-purple-100 to-purple-200',
+                    'Infrecuente': 'from-blue-100 to-blue-200',
+                    'Común': 'from-emerald-100 to-emerald-200'
+                }[data.rarity] || 'from-emerald-100 to-emerald-200';
+
+                const emoji = {
+                    'Legendario': '🌟',
+                    'Raro': '💎',
+                    'Infrecuente': '🌿',
+                    'Común': '🌳'
+                }[data.rarity] || '🌳';
+
                 return `
                 <div onclick="openEspecie('${scientific}')" class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm active:scale-[0.98] transition cursor-pointer">
-                    <div class="h-24 bg-emerald-200 relative flex items-center justify-center">
-                        <span class="text-4xl absolute z-0">🌳</span>
-                        <img src="${imagen}" class="w-full h-full object-cover relative z-10" onerror="this.style.display='none'">
+                    <div class="h-24 bg-gradient-to-br ${bgRareza} relative flex items-center justify-center">
+                        <span class="text-4xl absolute z-0 opacity-50">${emoji}</span>
+                        ${imagen ? `<img src="${imagen}" class="w-full h-full object-cover relative z-10" onerror="this.style.display='none'">` : ''}
                         <span class="absolute top-2 right-2 ${colorRareza} text-white text-[8px] font-bold px-2 py-0.5 rounded-full z-20">${data.rarity}</span>
                     </div>
                     <div class="p-2">
@@ -1020,7 +1085,14 @@
                 'Común': 'bg-slate-500'
             }[data.rarity] || 'bg-slate-500';
 
-            document.getElementById('especie-img').src = imagen;
+            // Manejar imagen con fallback
+            const imgElement = document.getElementById('especie-img');
+            if (imagen) {
+                imgElement.src = imagen;
+                imgElement.style.display = 'block';
+            } else {
+                imgElement.style.display = 'none';
+            }
             document.getElementById('especie-nombre').innerText = data.name;
             document.getElementById('especie-cientifico').innerText = scientific;
             document.getElementById('especie-descripcion').innerText = descripcion;
