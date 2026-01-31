@@ -1,10 +1,32 @@
-const CACHE_NAME = 'treequest-v4';
+const CACHE_NAME = 'treequest-v6';
 const ASSETS_TO_CACHE = [
   '/index.html',
   '/manifest.json',
   '/database.js',
   '/icons/icon-192.svg',
-  '/icons/icon-512.svg'
+  '/icons/icon-512.svg',
+  '/images/parques/sensal.jpg',
+  '/images/parques/ribalta.jpg',
+  '/images/parques/pinar.jpg',
+  '/images/parques/litoral.jpg',
+  '/images/parques/royo.jpg',
+  '/images/parques/auditorio.jpg',
+  '/images/parques/comunicaciones.jpg',
+  '/images/parques/merida.jpg',
+  '/images/parques/meridiano.jpg',
+  '/images/parques/panderola.jpg',
+  '/images/parques/rafalafena.jpg'
+];
+
+// CDNs permitidos para cachear
+const ALLOWED_ORIGINS = [
+  'https://unpkg.com',
+  'https://cdn.tailwindcss.com',
+  'https://cdn.jsdelivr.net',
+  'https://fonts.googleapis.com',
+  'https://fonts.gstatic.com',
+  'https://upload.wikimedia.org',
+  'https://images.unsplash.com'
 ];
 
 // Instalación: cachear recursos esenciales
@@ -34,9 +56,17 @@ self.addEventListener('fetch', event => {
   // Solo cachear peticiones GET
   if (event.request.method !== 'GET') return;
 
-  // No cachear llamadas a APIs externas
   const url = new URL(event.request.url);
-  if (url.origin !== location.origin) return;
+
+  // Verificar si es un origen permitido para cachear
+  const isAllowedOrigin = url.origin === location.origin ||
+                          ALLOWED_ORIGINS.some(origin => url.href.startsWith(origin));
+
+  // No cachear llamadas a APIs externas no permitidas
+  if (!isAllowedOrigin) return;
+
+  // No cachear tiles de OpenStreetMap (ya tienen su propio cache)
+  if (url.href.includes('tile.openstreetmap.org')) return;
 
   event.respondWith(
     fetch(event.request)

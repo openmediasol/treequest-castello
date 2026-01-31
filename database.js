@@ -136,91 +136,116 @@ const CASTELLO_DATABASE = {
 
     // =====================
     // PARQUES DE CASTELLÓN
+    // Coordenadas GPS para navegación y mapa interactivo
     // =====================
     parks: [
-        { 
-            id: "sensal", 
-            name: "Parque Sensal", 
+        {
+            id: "sensal",
+            name: "Parque Sensal",
             description: "Jardín botánico moderno con especies exóticas y colecciones temáticas.",
             location: "Avenida Sensal",
-            area: "28.500 m²"
+            area: "28.500 m²",
+            coordenadas: { lat: 39.9912, lng: -0.0667 },
+            imagen: "/images/parques/sensal.jpg"
         },
-        { 
-            id: "ribalta", 
-            name: "Parque Ribalta", 
+        {
+            id: "ribalta",
+            name: "Parque Ribalta",
             description: "BIC Histórico, pulmón romántico de la ciudad inaugurado en 1876.",
             location: "Centro histórico",
-            area: "42.000 m²"
+            area: "42.000 m²",
+            coordenadas: { lat: 39.9847, lng: -0.0372 },
+            imagen: "/images/parques/ribalta.jpg"
         },
-        { 
-            id: "pinar", 
-            name: "El Pinar", 
+        {
+            id: "pinar",
+            name: "El Pinar",
             description: "Gran bosque de pinos junto al Grao, área natural de recreo.",
             location: "Grao de Castellón",
-            area: "89.000 m²"
+            area: "89.000 m²",
+            coordenadas: { lat: 39.9634, lng: -0.0089 },
+            imagen: "/images/parques/pinar.jpg"
         },
-        { 
-            id: "litoral", 
-            name: "Parque Litoral", 
+        {
+            id: "litoral",
+            name: "Parque Litoral",
             description: "Vegetación adaptada a la salinidad y dunas costeras.",
             location: "Litoral norte",
-            area: "35.000 m²"
+            area: "35.000 m²",
+            coordenadas: { lat: 39.9700, lng: -0.0050 },
+            imagen: "/images/parques/litoral.jpg"
         },
-        { 
-            id: "royo", 
-            name: "Parque Geólogo José Royo", 
+        {
+            id: "royo",
+            name: "Parque Geólogo José Royo",
             description: "Parque con paseo junto al río, conocido por sus jacarandas.",
             location: "Riberas del río Millars",
-            area: "52.000 m²"
+            area: "52.000 m²",
+            coordenadas: { lat: 39.9580, lng: -0.0520 },
+            imagen: "/images/parques/royo.jpg"
         },
         {
             id: "auditorio",
             name: "Parque Auditorio",
             description: "Parque urbano con vistas al mar, zona de ocio y esparcimiento.",
-            location: "Zona de Benicassim",
-            area: "18.500 m²"
+            location: "Zona Auditorio",
+            area: "18.500 m²",
+            coordenadas: { lat: 39.9830, lng: -0.0200 },
+            imagen: "/images/parques/auditorio.jpg"
         },
         {
             id: "comunicaciones",
             name: "Parque Comunicaciones",
             description: "Parque de barrio con equipamientos públicos y zonas verdes.",
             location: "Avenida de las Comunicaciones",
-            area: "22.000 m²"
+            area: "22.000 m²",
+            coordenadas: { lat: 39.9880, lng: -0.0480 },
+            imagen: "/images/parques/comunicaciones.jpg"
         },
         {
             id: "merida",
             name: "Parque Mérida",
             description: "Espacio verde de recreo con instalaciones deportivas.",
             location: "Zona de Mérida",
-            area: "31.000 m²"
+            area: "31.000 m²",
+            coordenadas: { lat: 39.9750, lng: -0.0400 },
+            imagen: "/images/parques/merida.jpg"
         },
         {
             id: "meridiano",
             name: "Parque Meridiano",
             description: "Parque con vegetación mediterránea adaptada al clima local.",
             location: "Paseo Meridiano",
-            area: "19.000 m²"
+            area: "19.000 m²",
+            coordenadas: { lat: 39.9725, lng: -0.0198 },
+            imagen: "/images/parques/meridiano.jpg"
         },
         {
             id: "panderola",
             name: "Parque Panderola",
             description: "Área verde natural con senderos y espacios para la biodiversidad.",
             location: "Zona de Panderola",
-            area: "45.000 m²"
+            area: "45.000 m²",
+            coordenadas: { lat: 39.9650, lng: -0.0450 },
+            imagen: "/images/parques/panderola.jpg"
         },
         {
             id: "pontdeferro",
             name: "Parque Pont de Ferro",
             description: "Parque junto al puente histórico, con paseos junto al agua.",
             location: "Riberas del río",
-            area: "26.000 m²"
+            area: "26.000 m²",
+            coordenadas: { lat: 39.9600, lng: -0.0500 },
+            imagen: ""
         },
         {
             id: "rafalafena",
             name: "Parque Rafalafena",
             description: "Espacio verde comunitario con vegetación nativa y senderos.",
             location: "Zona de Rafalafena",
-            area: "38.000 m²"
+            area: "38.000 m²",
+            coordenadas: { lat: 39.9956, lng: -0.0445 },
+            imagen: "/images/parques/rafalafena.jpg"
         }
     ],
     speciesMapping: {

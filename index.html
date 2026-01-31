@@ -18,6 +18,13 @@
         .tab-content.active { display: block; }
         .video-container { position: relative; overflow: hidden; border-radius: 40px; height: 60vh; background: #000; shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         #video { width: 100%; height: 100%; object-fit: cover; }
+        /* Estilos para el mapa interactivo */
+        #parque-map { height: 250px; border-radius: 1rem; z-index: 1; }
+        .leaflet-container { border-radius: 1rem; }
+        .user-marker { background: #059669; border: 3px solid white; border-radius: 50%; width: 16px; height: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .tree-marker { font-size: 20px; }
+        .pulse-animation { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } }
     </style>
 </head>
 <body class="bg-slate-50">
@@ -251,14 +258,28 @@
 
                     <!-- Servicios -->
                     <div class="mb-6">
-                        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-3">Servicios</h4>
+                        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-3">Patrocinadores</h4>
                         <div id="parque-servicios" class="flex flex-wrap gap-2"></div>
                     </div>
 
-                    <!-- Botón ir al parque -->
-                    <button onclick="abrirMapa()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs flex items-center justify-center gap-2">
-                        <span>📍</span> Cómo llegar
-                    </button>
+                    <!-- Mapa interactivo del parque -->
+                    <div class="mb-6">
+                        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-3">📍 Mapa del parque</h4>
+                        <div id="parque-map" class="bg-slate-100 rounded-2xl overflow-hidden"></div>
+                        <div id="ubicacion-usuario" class="mt-2 text-center text-[10px] text-slate-500">
+                            <span id="distancia-parque"></span>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="abrirMapa()" class="bg-emerald-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] flex items-center justify-center gap-2">
+                            <span>🗺️</span> Cómo llegar
+                        </button>
+                        <button onclick="iniciarExploracion()" class="bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] flex items-center justify-center gap-2">
+                            <span>🌳</span> Explorar
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -801,6 +822,31 @@
             return filtradas.map(([sci, data]) => ({ scientific: sci, ...data }));
         }
 
+        // Imágenes de parques (usar imágenes reales cuando estén disponibles en database.js)
+        const IMAGENES_PARQUES = {
+            'sensal': 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800',
+            'ribalta': 'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=800',
+            'pinar': 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800',
+            'litoral': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',
+            'royo': 'https://images.unsplash.com/photo-1476611338391-6f395a0ebc7b?w=800',
+            'auditorio': 'https://images.unsplash.com/photo-1552083375-1447ce886485?w=800',
+            'comunicaciones': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800',
+            'merida': 'https://images.unsplash.com/photo-1568454537842-d933259bb258?w=800',
+            'meridiano': 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800',
+            'panderola': 'https://images.unsplash.com/photo-1446329813274-7c9036bd9a1f?w=800',
+            'pontdeferro': 'https://images.unsplash.com/photo-1530631673369-bc20fdb32288?w=800',
+            'rafalafena': 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800'
+        };
+
+        function getImagenParque(parque) {
+            // Priorizar imagen real si está definida en database.js
+            if (parque.imagen && parque.imagen.trim() !== '') {
+                return parque.imagen;
+            }
+            // Fallback a imagen de Unsplash
+            return IMAGENES_PARQUES[parque.id] || 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800';
+        }
+
         function loadParques() {
             console.log('=== CARGANDO PARQUES ===');
             console.log('CASTELLO_DATABASE:', CASTELLO_DATABASE);
@@ -822,11 +868,12 @@
 
                 console.log(`Parque: ${parque.name} | Especies: ${especies.length} | Árboles: ${totalArboles}`);
 
+                const imagenParque = getImagenParque(parque);
                 html += `
                 <div onclick="openParqueFromDB('${parque.id}')" class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm active:scale-[0.98] transition cursor-pointer">
-                    <div class="h-28 bg-gradient-to-br from-emerald-400 to-emerald-600 relative flex items-center justify-center">
-                        <span class="text-5xl opacity-30">🌲</span>
-                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                    <div class="h-32 bg-emerald-100 relative">
+                        <img src="${imagenParque}" alt="${parque.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.classList.add('bg-gradient-to-br', 'from-emerald-400', 'to-emerald-600', 'flex', 'items-center', 'justify-center'); this.insertAdjacentHTML('afterend', '<span class=\\'text-5xl opacity-30\\'>🌲</span>');">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
                             <h4 class="text-white font-black text-sm">${parque.name}</h4>
                             <p class="text-white/80 text-[10px] font-bold">${parque.location}</p>
                         </div>
@@ -859,22 +906,8 @@
             const especies = getEspeciesParque(parque.name);
             const totalArboles = especies.reduce((sum, e) => sum + e.qty, 0);
 
-            // Imágenes específicas por parque
-            const imagenesParques = {
-                'sensal': 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800', // Jardín botánico
-                'ribalta': 'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=800', // Parque clásico
-                'pinar': 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800', // Bosque de pinos
-                'litoral': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', // Playa/dunas
-                'royo': 'https://images.unsplash.com/photo-1476611338391-6f395a0ebc7b?w=800', // Río con árboles
-                'auditorio': 'https://images.unsplash.com/photo-1552083375-1447ce886485?w=800', // Parque urbano
-                'comunicaciones': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800', // Parque ciudad
-                'merida': 'https://images.unsplash.com/photo-1568454537842-d933259bb258?w=800', // Zona deportiva verde
-                'meridiano': 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800', // Vegetación mediterránea
-                'panderola': 'https://images.unsplash.com/photo-1446329813274-7c9036bd9a1f?w=800', // Naturaleza senderos
-                'pontdeferro': 'https://images.unsplash.com/photo-1530631673369-bc20fdb32288?w=800', // Puente con agua
-                'rafalafena': 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800'  // Bosque nativo
-            };
-            document.getElementById('parque-img').src = imagenesParques[parque.id] || 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800';
+            // Usar imagen del parque (real si está definida, o fallback a Unsplash)
+            document.getElementById('parque-img').src = getImagenParque(parque);
             document.getElementById('parque-nombre').innerText = parque.name;
             document.getElementById('parque-ubicacion').innerText = parque.location;
             document.getElementById('parque-desc').innerText = parque.description + ' Superficie: ' + parque.area;
@@ -901,10 +934,22 @@
             }
 
             document.getElementById('parque-modal').classList.remove('hidden');
+
+            // Inicializar mapa interactivo
+            initParqueMap(parque);
         }
 
         function closeParque() {
             document.getElementById('parque-modal').classList.add('hidden');
+            // Limpiar el mapa si existe
+            if (parqueMap) {
+                parqueMap.remove();
+                parqueMap = null;
+            }
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
             parqueActual = null;
         }
 
@@ -912,6 +957,181 @@
             if (parqueActual && parqueActual.coordenadas) {
                 const { lat, lng } = parqueActual.coordenadas;
                 window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+            } else {
+                showError('No hay coordenadas disponibles para este parque');
+            }
+        }
+
+        // =====================
+        // MAPA INTERACTIVO CON LEAFLET
+        // =====================
+        let parqueMap = null;
+        let userMarker = null;
+        let watchId = null;
+
+        function initParqueMap(parque) {
+            if (!parque || !parque.coordenadas) return;
+
+            const { lat, lng } = parque.coordenadas;
+
+            // Esperar a que el contenedor sea visible
+            setTimeout(() => {
+                const container = document.getElementById('parque-map');
+                if (!container) return;
+
+                // Limpiar mapa anterior si existe
+                if (parqueMap) {
+                    parqueMap.remove();
+                }
+
+                // Crear nuevo mapa
+                parqueMap = L.map('parque-map').setView([lat, lng], 16);
+
+                // Añadir capa de OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap',
+                    maxZoom: 19
+                }).addTo(parqueMap);
+
+                // Marcador del parque
+                const parqueIcon = L.divIcon({
+                    html: '<div style="font-size: 28px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">🌳</div>',
+                    className: 'tree-marker',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+
+                L.marker([lat, lng], { icon: parqueIcon })
+                    .addTo(parqueMap)
+                    .bindPopup(`<b>${parque.name}</b><br>${parque.location}`)
+                    .openPopup();
+
+                // Añadir marcadores de especies del parque
+                addSpeciesMarkers(parque);
+
+                // Iniciar tracking del usuario
+                startUserTracking();
+
+            }, 100);
+        }
+
+        function addSpeciesMarkers(parque) {
+            if (!parqueMap || !parque) return;
+
+            const especies = getEspeciesParque(parque.name);
+            const { lat, lng } = parque.coordenadas;
+
+            // Distribuir las especies alrededor del centro del parque
+            especies.forEach((especie, i) => {
+                // Crear posiciones aleatorias alrededor del centro (radio ~100m)
+                const angle = (i / especies.length) * 2 * Math.PI;
+                const radius = 0.0005 + Math.random() * 0.001; // ~50-150m
+                const specLat = lat + Math.cos(angle) * radius;
+                const specLng = lng + Math.sin(angle) * radius;
+
+                const rarityEmoji = {
+                    'Legendario': '🌟',
+                    'Raro': '💎',
+                    'Infrecuente': '🌿',
+                    'Común': '🌱'
+                }[especie.rarity] || '🌱';
+
+                const specIcon = L.divIcon({
+                    html: `<div style="font-size: 18px;">${rarityEmoji}</div>`,
+                    className: 'tree-marker',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+
+                L.marker([specLat, specLng], { icon: specIcon })
+                    .addTo(parqueMap)
+                    .bindPopup(`<b>${especie.name}</b><br><i>${especie.scientific}</i><br>Rareza: ${especie.rarity}`);
+            });
+        }
+
+        function startUserTracking() {
+            if (!navigator.geolocation) {
+                document.getElementById('distancia-parque').innerText = 'Geolocalización no disponible';
+                return;
+            }
+
+            document.getElementById('distancia-parque').innerText = 'Obteniendo tu ubicación...';
+
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+
+                    // Crear o actualizar marcador del usuario
+                    if (!userMarker && parqueMap) {
+                        const userIcon = L.divIcon({
+                            html: '<div class="user-marker pulse-animation"></div>',
+                            className: '',
+                            iconSize: [16, 16],
+                            iconAnchor: [8, 8]
+                        });
+                        userMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(parqueMap);
+                    } else if (userMarker) {
+                        userMarker.setLatLng([userLat, userLng]);
+                    }
+
+                    // Calcular distancia al parque
+                    if (parqueActual && parqueActual.coordenadas) {
+                        const dist = calcularDistancia(
+                            userLat, userLng,
+                            parqueActual.coordenadas.lat, parqueActual.coordenadas.lng
+                        );
+
+                        if (dist < 1) {
+                            document.getElementById('distancia-parque').innerHTML =
+                                `<span class="text-emerald-600 font-bold">¡Estás en el parque! 📍</span>`;
+                        } else {
+                            document.getElementById('distancia-parque').innerText =
+                                `Estás a ${dist.toFixed(1)} km del parque`;
+                        }
+                    }
+                },
+                (error) => {
+                    console.error('Error de geolocalización:', error);
+                    document.getElementById('distancia-parque').innerText = 'No se pudo obtener tu ubicación';
+                },
+                { enableHighAccuracy: true, maximumAge: 5000 }
+            );
+        }
+
+        function calcularDistancia(lat1, lng1, lat2, lng2) {
+            const R = 6371; // Radio de la Tierra en km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function iniciarExploracion() {
+            if (!parqueActual) return;
+
+            // Cerrar modal del parque
+            closeParque();
+
+            // Ir a la pestaña de cámara
+            showTab('camera');
+
+            // Actualizar la misión actual
+            const misionDiv = document.querySelector('#camera-tab .bg-emerald-50');
+            if (misionDiv) {
+                const especies = getEspeciesParque(parqueActual.name);
+                const especieRara = especies.find(e => e.rarity === 'Legendario' || e.rarity === 'Raro') || especies[0];
+
+                if (especieRara) {
+                    const puntos = especieRara.rarity === 'Legendario' ? 500 : especieRara.rarity === 'Raro' ? 200 : 100;
+                    misionDiv.innerHTML = `
+                        <p class="text-[11px] text-emerald-800 font-bold uppercase tracking-widest">Misión: ${parqueActual.name}</p>
+                        <p class="text-xs text-emerald-600 italic">"Encuentra ${especieRara.name} para ganar ${puntos} puntos"</p>
+                    `;
+                }
             }
         }
 
