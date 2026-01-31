@@ -144,11 +144,12 @@
     <!-- MODAL DETALLE ESPECIE -->
     <div id="especie-modal" class="fixed inset-0 bg-white z-[200] hidden overflow-y-auto">
         <div class="relative">
-            <div class="h-64 bg-emerald-100 relative">
-                <img id="especie-img" src="" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <button onclick="closeEspecie()" class="absolute top-4 left-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-xl font-bold">✕</button>
-                <div id="especie-rareza-badge" class="absolute top-4 right-4 bg-purple-500 text-white text-[10px] font-bold px-3 py-1 rounded-full">LEGENDARIO</div>
+            <div class="h-64 bg-emerald-200 relative flex items-center justify-center">
+                <span class="text-8xl absolute z-0">🌲</span>
+                <img id="especie-img" src="" class="w-full h-full object-cover relative z-10" onerror="this.style.opacity='0'">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-20"></div>
+                <button onclick="closeEspecie()" class="absolute top-4 left-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-xl font-bold z-30">✕</button>
+                <div id="especie-rareza-badge" class="absolute top-4 right-4 bg-purple-500 text-white text-[10px] font-bold px-3 py-1 rounded-full z-30">LEGENDARIO</div>
             </div>
 
             <div class="p-6 -mt-12 relative">
@@ -881,68 +882,75 @@
         // Cache de imágenes de Wikipedia
         const imagenesCache = {};
 
-        // Imágenes predefinidas de Wikimedia Commons (URLs verificadas)
-        const IMAGENES_WIKIMEDIA = {
-            "Phytolacca dioica": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Phytolacca_dioica_JPG1b.jpg/440px-Phytolacca_dioica_JPG1b.jpg",
-            "Ceratonia siliqua": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Ceratonia_siliqua%2C_CapoGrecale%2C_Sicily.jpg/440px-Ceratonia_siliqua%2C_CapoGrecale%2C_Sicily.jpg",
-            "Cupressus sempervirens": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Cupressus_sempervirens_-_Serralves.jpg/440px-Cupressus_sempervirens_-_Serralves.jpg",
-            "Lagerstroemia indica": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Lagerstroemia_indica_flowers.jpg/440px-Lagerstroemia_indica_flowers.jpg",
-            "Washingtonia robusta": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Washingtonia_robusta_in_San_Jose.jpg/440px-Washingtonia_robusta_in_San_Jose.jpg",
-            "Celtis australis": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Celtis_australis_JPG1a.jpg/440px-Celtis_australis_JPG1a.jpg",
-            "Platanus x hispanica": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Platane_Kl%C3%A4den.jpg/440px-Platane_Kl%C3%A4den.jpg",
-            "Cedrus libani": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Cedrus_libani_-_K%C3%B6ln_Flora-0170.jpg/440px-Cedrus_libani_-_K%C3%B6ln_Flora-0170.jpg",
-            "Magnolia grandiflora": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Magnolia_grandiflora1Stuart_Yeates.jpg/440px-Magnolia_grandiflora1Stuart_Yeates.jpg",
-            "Quercus ilex": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Quercus_ilex_rotundifolia.jpg/440px-Quercus_ilex_rotundifolia.jpg",
-            "Ficus carica": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Figueira.jpg/440px-Figueira.jpg",
-            "Pinus pinea": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Pinus_pinea_-_Stone_Pine.jpg/440px-Pinus_pinea_-_Stone_Pine.jpg",
-            "Pinus halepensis": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Pinus_halepensis_cones.jpg/440px-Pinus_halepensis_cones.jpg",
-            "Juniperus oxycedrus": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Juniperus_oxycedrus_subsp._macrocarpa%2C_Sardinia.jpg/440px-Juniperus_oxycedrus_subsp._macrocarpa%2C_Sardinia.jpg",
-            "Tetraclinis articulata": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Tetraclinis_articulata_kz01.jpg/440px-Tetraclinis_articulata_kz01.jpg",
-            "Jacaranda mimosifolia": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Jacaranda_mimosifolia_flowers.jpg/440px-Jacaranda_mimosifolia_flowers.jpg",
-            "Acacia dealbata": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Acacia_dealbata-1.jpg/440px-Acacia_dealbata-1.jpg",
-            "Sambucus nigra": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Sambucus_nigra_01.jpg/440px-Sambucus_nigra_01.jpg",
-            "Populus alba": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Populus_alba_Morton.jpg/440px-Populus_alba_Morton.jpg",
-            "Salix alba": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Salix_alba_Morton.jpg/440px-Salix_alba_Morton.jpg",
-            "Nerium oleander": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Nerium_oleander_flowers_leaves.jpg/440px-Nerium_oleander_flowers_leaves.jpg",
-            "Pistacia lentiscus": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Pistacia_lentiscus_g1.jpg/440px-Pistacia_lentiscus_g1.jpg",
-            "Arbutus unedo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Arbutus_unedo_fruits.jpg/440px-Arbutus_unedo_fruits.jpg",
-            "Rhamnus alaternus": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Rhamnus_alaternus.jpg/440px-Rhamnus_alaternus.jpg",
-            "Acer negundo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Acer_negundo_002.JPG/440px-Acer_negundo_002.JPG",
-            "Fraxinus angustifolia": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Fraxinus_angustifolia_subsp._oxycarpa.jpg/440px-Fraxinus_angustifolia_subsp._oxycarpa.jpg",
-            "Liquidambar styraciflua": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Liquidambar_styraciflua_03_by_Line1.jpg/440px-Liquidambar_styraciflua_03_by_Line1.jpg",
-            "Tilia platyphyllos": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Tilia_platyphyllos_002.jpg/440px-Tilia_platyphyllos_002.jpg",
-            "Catalpa bignonioides": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Catalpa_bignonioides1.jpg/440px-Catalpa_bignonioides1.jpg",
-            "Koelreuteria paniculata": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Koelreuteria_paniculata1.jpg/440px-Koelreuteria_paniculata1.jpg",
-            "Hibiscus syriacus": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Hibiscus_syriacus_2.jpg/440px-Hibiscus_syriacus_2.jpg",
-            "Ulmus minor": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Ulmus_minor_morton.jpg/440px-Ulmus_minor_morton.jpg",
-            "Castanea sativa": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Castanea_sativa_001.jpg/440px-Castanea_sativa_001.jpg",
-            "Sorbus aucuparia": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Sorbus_aucuparia_fruit.jpg/440px-Sorbus_aucuparia_fruit.jpg",
-            "Prunus avium": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Sweet_cherry.jpg/440px-Sweet_cherry.jpg",
-            "Ilex aquifolium": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Ilex_aquifolium.jpg/440px-Ilex_aquifolium.jpg",
-            "Laurus nobilis": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Laurus_nobilis_MHNT.jpg/440px-Laurus_nobilis_MHNT.jpg",
-            "Buxus sempervirens": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Buxus_sempervirens_in_garden.jpg/440px-Buxus_sempervirens_in_garden.jpg",
-            "Taxus baccata": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Taxus_baccata01.jpg/440px-Taxus_baccata01.jpg",
-            // Especies adicionales
-            "Atriplex halimus": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Atriplex_halimus_1.jpg/440px-Atriplex_halimus_1.jpg",
-            "Ephedra nevadensis": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Ephedra_nevadensis_3.jpg/440px-Ephedra_nevadensis_3.jpg",
-            "Suaeda vera": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Suaeda_vera.jpg/440px-Suaeda_vera.jpg",
-            "Ammophila arenaria": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Ammophila_arenaria_01.jpg/440px-Ammophila_arenaria_01.jpg",
-            "Spiraea cantoniensis": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Spiraea_cantoniensis_01.jpg/440px-Spiraea_cantoniensis_01.jpg",
-            "Cupressus arizonica": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Cupressus_arizonica_var_glabra.jpg/440px-Cupressus_arizonica_var_glabra.jpg",
-            "Pinus sylvestris": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Pinus_sylvestris_Torthorwald.jpg/440px-Pinus_sylvestris_Torthorwald.jpg",
-            "Abies alba": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Abies_alba_cones.jpg/440px-Abies_alba_cones.jpg",
-            "Thuja occidentalis": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Thuja_occidentalis_Morton.jpg/440px-Thuja_occidentalis_Morton.jpg",
-            "Acer campestre": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Acer_campestre_leaves.jpg/440px-Acer_campestre_leaves.jpg",
-            "Sambucus ebulus": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Sambucus_ebulus_02.jpg/440px-Sambucus_ebulus_02.jpg",
-            "Hedera helix": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Hedera_helix_01.jpg/440px-Hedera_helix_01.jpg",
-            "Vitis vinifera": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Vitis_vinifera_001.jpg/440px-Vitis_vinifera_001.jpg"
+        // Generador de imágenes basado en nombres de especies
+        // Usa Unsplash Source API para obtener imágenes relevantes
+        const DEFAULT_TREE_IMG = "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=400&h=300&fit=crop";
+
+        // Cache para términos de búsqueda optimizados por especie
+        const TERMINOS_BUSQUEDA = {
+            "Phytolacca dioica": "ombu tree argentina",
+            "Ceratonia siliqua": "carob tree mediterranean",
+            "Cupressus sempervirens": "italian cypress tree",
+            "Lagerstroemia indica": "crepe myrtle flowers",
+            "Washingtonia robusta": "mexican fan palm",
+            "Celtis australis": "european hackberry tree",
+            "Platanus x hispanica": "london plane tree",
+            "Cedrus libani": "cedar of lebanon",
+            "Magnolia grandiflora": "southern magnolia flower",
+            "Quercus ilex": "holm oak tree",
+            "Ficus carica": "fig tree fruit",
+            "Pinus pinea": "stone pine umbrella",
+            "Pinus halepensis": "aleppo pine",
+            "Juniperus oxycedrus": "prickly juniper",
+            "Tetraclinis articulata": "sandarac tree",
+            "Atriplex halimus": "sea orache shrub",
+            "Ephedra nevadensis": "mormon tea plant",
+            "Suaeda vera": "sea blite plant",
+            "Ammophila arenaria": "beach grass dunes",
+            "Jacaranda mimosifolia": "jacaranda purple flowers",
+            "Acacia dealbata": "silver wattle mimosa",
+            "Sambucus nigra": "elderberry flowers",
+            "Populus alba": "white poplar tree",
+            "Salix alba": "white willow tree",
+            "Nerium oleander": "oleander pink flowers",
+            "Pistacia lentiscus": "mastic tree",
+            "Arbutus unedo": "strawberry tree fruit",
+            "Rhamnus alaternus": "italian buckthorn",
+            "Acer negundo": "box elder maple",
+            "Fraxinus angustifolia": "narrow leaf ash",
+            "Liquidambar styraciflua": "sweetgum autumn",
+            "Tilia platyphyllos": "large leaf linden",
+            "Catalpa bignonioides": "southern catalpa flowers",
+            "Koelreuteria paniculata": "golden rain tree",
+            "Hibiscus syriacus": "rose of sharon",
+            "Spiraea cantoniensis": "bridal wreath spirea",
+            "Cupressus arizonica": "arizona cypress",
+            "Pinus sylvestris": "scots pine",
+            "Abies alba": "silver fir",
+            "Thuja occidentalis": "arborvitae",
+            "Ulmus minor": "field elm",
+            "Castanea sativa": "sweet chestnut",
+            "Sorbus aucuparia": "rowan berries",
+            "Prunus avium": "wild cherry blossom",
+            "Acer campestre": "field maple",
+            "Sambucus ebulus": "dwarf elder",
+            "Hedera helix": "english ivy",
+            "Vitis vinifera": "grape vine",
+            "Ilex aquifolium": "holly berries",
+            "Laurus nobilis": "bay laurel",
+            "Buxus sempervirens": "boxwood hedge",
+            "Taxus baccata": "english yew"
         };
 
-        // Imagen por defecto para especies sin imagen
-        const DEFAULT_TREE_IMG = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Ash_Tree_-_geograph.org.uk_-_590710.jpg/440px-Ash_Tree_-_geograph.org.uk_-_590710.jpg";
-
+        // Función para obtener imagen con fallback robusto
         function getImagenEspecie(scientific, name) {
-            return IMAGENES_WIKIMEDIA[scientific] || DEFAULT_TREE_IMG;
+            // Usar término de búsqueda optimizado o nombre común
+            const searchTerm = TERMINOS_BUSQUEDA[scientific] || name || scientific.split(' ')[0];
+            const encoded = encodeURIComponent(searchTerm);
+            // Usar un hash simple basado en el nombre para consistencia
+            const hash = scientific.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
+            const seed = Math.abs(hash % 1000);
+            return `https://source.unsplash.com/400x300/?${encoded}&sig=${seed}`;
         }
 
         const DESCRIPCIONES_ESPECIES = {
@@ -982,9 +990,10 @@
 
                 return `
                 <div onclick="openEspecie('${scientific}')" class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm active:scale-[0.98] transition cursor-pointer">
-                    <div class="h-24 bg-emerald-100 relative">
-                        <img src="${imagen}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=400'">
-                        <span class="absolute top-2 right-2 ${colorRareza} text-white text-[8px] font-bold px-2 py-0.5 rounded-full">${data.rarity}</span>
+                    <div class="h-24 bg-emerald-200 relative flex items-center justify-center">
+                        <span class="text-4xl absolute z-0">🌳</span>
+                        <img src="${imagen}" class="w-full h-full object-cover relative z-10" onerror="this.style.display='none'">
+                        <span class="absolute top-2 right-2 ${colorRareza} text-white text-[8px] font-bold px-2 py-0.5 rounded-full z-20">${data.rarity}</span>
                     </div>
                     <div class="p-2">
                         <h4 class="font-black text-sm text-slate-800 truncate">${data.name}</h4>
