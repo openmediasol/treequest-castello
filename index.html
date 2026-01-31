@@ -1297,8 +1297,8 @@
             event?.target?.classList?.remove('bg-slate-100', 'text-slate-600');
             event?.target?.classList?.add('active', 'bg-emerald-600', 'text-white');
 
+            // Renderizar tarjetas con placeholder mientras cargan las imágenes
             container.innerHTML = especiesFiltradas.map(([scientific, data]) => {
-                const imagen = getImagenEspecie(scientific, data.name);
                 const colorRareza = {
                     'Legendario': 'bg-yellow-500',
                     'Raro': 'bg-purple-500',
@@ -1322,9 +1322,8 @@
 
                 return `
                 <div onclick="openEspecie('${scientific}')" class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm active:scale-[0.98] transition cursor-pointer">
-                    <div class="h-24 bg-gradient-to-br ${bgRareza} relative flex items-center justify-center">
-                        <span class="text-4xl absolute z-0 opacity-50">${emoji}</span>
-                        ${imagen ? `<img src="${imagen}" class="w-full h-full object-cover relative z-10" onerror="this.style.display='none'">` : ''}
+                    <div id="img-${scientific.replace(/\s/g, '_')}" class="h-28 bg-gradient-to-br ${bgRareza} relative flex items-center justify-center overflow-hidden">
+                        <span class="text-4xl absolute z-0 opacity-50 emoji-placeholder">${emoji}</span>
                         <span class="absolute top-2 right-2 ${colorRareza} text-white text-[9px] font-bold px-2 py-0.5 rounded-full z-20">${data.rarity}</span>
                     </div>
                     <div class="p-2">
@@ -1337,6 +1336,34 @@
                     </div>
                 </div>`;
             }).join('');
+
+            // Cargar imágenes de forma asíncrona
+            loadEspeciesImages(especiesFiltradas);
+        }
+
+        // Cargar imágenes de especies de forma asíncrona
+        async function loadEspeciesImages(especies) {
+            for (const [scientific, data] of especies) {
+                const containerId = `img-${scientific.replace(/\s/g, '_')}`;
+                const container = document.getElementById(containerId);
+                if (!container) continue;
+
+                // Obtener imagen de Wikipedia
+                const imageUrl = await getImagenEspecie(scientific);
+                if (imageUrl && container) {
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = data.name;
+                    img.className = 'w-full h-full object-cover absolute inset-0 z-10';
+                    img.onerror = () => { img.style.display = 'none'; };
+                    img.onload = () => {
+                        // Ocultar emoji cuando la imagen cargue
+                        const emoji = container.querySelector('.emoji-placeholder');
+                        if (emoji) emoji.style.opacity = '0';
+                    };
+                    container.appendChild(img);
+                }
+            }
         }
 
         function filtrarEspecies(filtro) {
