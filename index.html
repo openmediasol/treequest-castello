@@ -47,8 +47,8 @@
             <h1 class="text-xl font-black text-slate-800 tracking-tighter">TreeQuest</h1>
         </div>
         <div class="text-right">
-            <p id="user-points" class="text-xs font-black text-emerald-600 uppercase leading-none">0 Puntos</p>
-            <p id="user-rank" class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Nivel: Semilla</p>
+            <p id="user-points" class="text-sm font-black text-emerald-600 uppercase leading-none">0 Puntos</p>
+            <p id="user-rank" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Nivel: Semilla</p>
         </div>
     </header>
 
@@ -62,22 +62,22 @@
                 <button onclick="captureAndIdentify()" class="absolute bottom-6 left-1/2 -translate-x-1/2 w-20 h-20 bg-white rounded-full border-8 border-emerald-100 shadow-2xl active:scale-90 transition"></button>
             </div>
             <div class="text-center p-4 bg-emerald-50 rounded-3xl border border-emerald-100">
-                <p class="text-[11px] text-emerald-800 font-bold uppercase tracking-widest">Misión Actual: Parque Sensal</p>
-                <p class="text-xs text-emerald-600 italic">"Encuentra el legendario Ombú para ganar 500 puntos"</p>
+                <p class="text-[12px] text-emerald-800 font-bold uppercase tracking-widest">Misión Actual: Parque Sensal</p>
+                <p class="text-sm text-emerald-600 italic">"Encuentra el legendario Ombú para ganar 500 puntos"</p>
             </div>
         </div>
 
         <!-- PESTAÑA 2: RANKING ESCOLAR -->
         <div id="ranking-tab" class="tab-content space-y-4">
             <h3 class="text-2xl font-black text-slate-800 tracking-tighter italic">LIGA DE CENTROS</h3>
-            <p class="text-xs text-slate-500">60 centros educativos de Castellón</p>
+            <p class="text-sm text-slate-500">60 centros educativos de Castellón</p>
 
             <!-- Filtros por tipo -->
             <div class="flex gap-2 overflow-x-auto pb-2">
-                <button onclick="loadRanking('todos')" class="filtro-ranking active bg-emerald-600 text-white text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Todos (60)</button>
-                <button onclick="loadRanking('público')" class="filtro-ranking bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">🏫 CEIP/IES (48)</button>
-                <button onclick="loadRanking('concertado')" class="filtro-ranking bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">🎓 Concertados (7)</button>
-                <button onclick="loadRanking('privado')" class="filtro-ranking bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">🏛️ Privados (5)</button>
+                <button onclick="loadRanking('todos')" class="filtro-ranking active bg-emerald-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap">Todos (60)</button>
+                <button onclick="loadRanking('público')" class="filtro-ranking bg-slate-100 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap">🏫 CEIP/IES (48)</button>
+                <button onclick="loadRanking('concertado')" class="filtro-ranking bg-slate-100 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap">🎓 Concertados (7)</button>
+                <button onclick="loadRanking('privado')" class="filtro-ranking bg-slate-100 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap">🏛️ Privados (5)</button>
             </div>
 
             <div class="space-y-2">
@@ -88,7 +88,7 @@
         <!-- PESTAÑA 3: PARQUES DE CASTELLÓN -->
         <div id="parques-tab" class="tab-content space-y-4">
             <h3 class="text-2xl font-black text-slate-800 tracking-tighter italic">PARQUES DE CASTELLÓ</h3>
-            <p class="text-xs text-slate-500">Descubre los espacios verdes de nuestra ciudad</p>
+            <p class="text-sm text-slate-500">Descubre los espacios verdes de nuestra ciudad</p>
 
             <div id="parques-list" class="space-y-3">
                 <!-- Los parques se cargan dinámicamente -->
@@ -98,15 +98,15 @@
         <!-- PESTAÑA 4: CATÁLOGO DE ESPECIES -->
         <div id="especies-tab" class="tab-content space-y-4">
             <h3 class="text-2xl font-black text-slate-800 tracking-tighter italic">CATÁLOGO DE FLORA</h3>
-            <p class="text-xs text-slate-500">Todas las especies de los parques de Castellón</p>
+            <p class="text-sm text-slate-500">Todas las especies de los parques de Castellón</p>
 
             <!-- Filtros -->
             <div class="flex gap-2 overflow-x-auto pb-2">
-                <button onclick="filtrarEspecies('todas')" class="filtro-btn active bg-emerald-600 text-white text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Todas</button>
-                <button onclick="filtrarEspecies('Legendario')" class="filtro-btn bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Legendario</button>
-                <button onclick="filtrarEspecies('Raro')" class="filtro-btn bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Raro</button>
-                <button onclick="filtrarEspecies('Infrecuente')" class="filtro-btn bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Infrecuente</button>
-                <button onclick="filtrarEspecies('Común')" class="filtro-btn bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Común</button>
+                <button onclick="filtrarEspecies('todas')" class="filtro-btn active bg-emerald-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap">Todas</button>
+                <button onclick="filtrarEspecies('Legendario')" class="filtro-btn bg-slate-100 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap">Legendario</button>
+                <button onclick="filtrarEspecies('Raro')" class="filtro-btn bg-slate-100 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap">Raro</button>
+                <button onclick="filtrarEspecies('Infrecuente')" class="filtro-btn bg-slate-100 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap">Infrecuente</button>
+                <button onclick="filtrarEspecies('Común')" class="filtro-btn bg-slate-100 text-slate-600 text-[11px] font-bold px-3 py-1.5 rounded-full whitespace-nowrap">Común</button>
             </div>
 
             <div id="especies-list" class="grid grid-cols-2 gap-3">
@@ -120,12 +120,12 @@
         <div class="max-w-md mx-auto">
             <div class="flex justify-between mb-6">
                 <button onclick="closeResult()" class="text-2xl font-bold">✕</button>
-                <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase italic">¡Éxito!</span>
+                <span class="bg-emerald-100 text-emerald-700 text-[11px] font-bold px-3 py-1 rounded-full uppercase italic">¡Éxito!</span>
             </div>
 
             <div class="text-center mb-8">
                 <h2 id="res-name" class="text-4xl font-black text-slate-900 leading-none mb-1 italic">PINO PIÑONERO</h2>
-                <p id="res-sci" class="text-xs text-slate-400 font-bold tracking-widest uppercase">Pinus pinea</p>
+                <p id="res-sci" class="text-sm text-slate-400 font-bold tracking-widest uppercase">Pinus pinea</p>
             </div>
 
             <!-- GALERÍA QUÍNTUPLE IA -->
@@ -139,15 +139,15 @@
 
             <!-- ADVERGAMING INFO -->
             <div class="space-y-3 mb-8">
-                <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-[11px] text-blue-900 italic">
+                <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-[13px] text-blue-900 italic">
                     <strong>OPENMS:</strong> Este árbol purifica el aire de Castellón mediante fotocatálisis natural.
                 </div>
-                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-[11px] text-emerald-900 italic">
+                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-[13px] text-emerald-900 italic">
                     <strong>BIOZEO:</strong> Nutrimos sus raíces con zeolitas naturales para ahorrar agua.
                 </div>
             </div>
 
-            <button onclick="closeResult()" class="w-full bg-slate-900 text-white font-black py-5 rounded-3xl uppercase tracking-widest text-xs shadow-xl shadow-slate-300">Seguir Explorando</button>
+            <button onclick="closeResult()" class="w-full bg-slate-900 text-white font-black py-5 rounded-3xl uppercase tracking-widest text-sm shadow-xl shadow-slate-300">Seguir Explorando</button>
         </div>
     </div>
 
@@ -159,25 +159,25 @@
                 <img id="especie-img" src="" class="w-full h-full object-cover relative z-10" onerror="this.style.opacity='0'">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-20 pointer-events-none"></div>
                 <button onclick="closeEspecie()" class="absolute top-4 left-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-xl font-bold z-30">✕</button>
-                <div id="especie-rareza-badge" class="absolute top-4 right-4 bg-purple-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-full z-30">LEGENDARIO</div>
+                <div id="especie-rareza-badge" class="absolute top-4 right-4 bg-purple-500 text-white text-[12px] font-bold px-3 py-1.5 rounded-full z-30">LEGENDARIO</div>
             </div>
 
             <div class="p-6 -mt-12 relative">
                 <div class="bg-white rounded-3xl p-6 shadow-xl">
                     <h2 id="especie-nombre" class="text-3xl font-black text-slate-900 mb-1">Ombú</h2>
-                    <p id="especie-cientifico" class="text-sm text-emerald-600 font-bold uppercase tracking-wider mb-2">Phytolacca dioica</p>
-                    <p id="especie-familia" class="text-xs text-slate-400 italic mb-4">Familia: Phytolaccaceae</p>
+                    <p id="especie-cientifico" class="text-base text-emerald-600 font-bold uppercase tracking-wider mb-2">Phytolacca dioica</p>
+                    <p id="especie-familia" class="text-sm text-slate-400 italic mb-4">Familia: Phytolaccaceae</p>
 
                     <!-- Descripción principal -->
                     <div class="mb-6">
-                        <h3 class="text-sm font-black text-slate-800 uppercase mb-2">📖 Descripción</h3>
-                        <p id="especie-descripcion" class="text-base text-slate-600 leading-relaxed"></p>
+                        <h3 class="text-base font-black text-slate-800 uppercase mb-2">📖 Descripción</h3>
+                        <p id="especie-descripcion" class="text-[17px] text-slate-600 leading-relaxed"></p>
                     </div>
 
                     <!-- Información técnica -->
                     <div id="especie-info-tecnica" class="mb-6 p-4 bg-emerald-50 rounded-2xl">
-                        <h3 class="text-sm font-black text-emerald-800 uppercase mb-3">🌿 Datos Botánicos</h3>
-                        <div class="grid grid-cols-2 gap-3 text-sm">
+                        <h3 class="text-base font-black text-emerald-800 uppercase mb-3">🌿 Datos Botánicos</h3>
+                        <div class="grid grid-cols-2 gap-3 text-base">
                             <div><span class="font-bold text-emerald-700">Altura:</span> <span id="especie-altura" class="text-slate-600">10-15m</span></div>
                             <div><span class="font-bold text-emerald-700">Origen:</span> <span id="especie-origen" class="text-slate-600">Sudamérica</span></div>
                             <div><span class="font-bold text-emerald-700">Hoja:</span> <span id="especie-hoja" class="text-slate-600">Perenne</span></div>
@@ -189,31 +189,31 @@
                     <div class="grid grid-cols-3 gap-2 mb-6">
                         <div class="bg-emerald-50 p-3 rounded-2xl text-center">
                             <p class="text-xl font-black text-emerald-700" id="especie-cantidad">1</p>
-                            <p class="text-[10px] text-emerald-600 font-bold uppercase">Ejemplares</p>
+                            <p class="text-[11px] text-emerald-600 font-bold uppercase">Ejemplares</p>
                         </div>
                         <div class="bg-blue-50 p-3 rounded-2xl text-center">
                             <p class="text-base font-black text-blue-700" id="especie-parque">Sensal</p>
-                            <p class="text-[10px] text-blue-600 font-bold uppercase">Parque</p>
+                            <p class="text-[11px] text-blue-600 font-bold uppercase">Parque</p>
                         </div>
                         <div class="bg-purple-50 p-3 rounded-2xl text-center">
                             <p class="text-base font-black text-purple-700" id="especie-puntos">500</p>
-                            <p class="text-[10px] text-purple-600 font-bold uppercase">Puntos</p>
+                            <p class="text-[11px] text-purple-600 font-bold uppercase">Puntos</p>
                         </div>
                     </div>
 
                     <!-- Curiosidades -->
                     <div id="especie-curiosidades" class="mb-6 p-4 bg-amber-50 rounded-2xl">
-                        <h3 class="text-sm font-black text-amber-800 uppercase mb-2">💡 Curiosidades</h3>
-                        <p id="especie-curiosidad-texto" class="text-sm text-amber-700"></p>
+                        <h3 class="text-base font-black text-amber-800 uppercase mb-2">💡 Curiosidades</h3>
+                        <p id="especie-curiosidad-texto" class="text-base text-amber-700"></p>
                     </div>
 
                     <!-- Patrocinador -->
                     <div class="p-4 bg-slate-50 rounded-2xl mb-4">
-                        <p class="text-[11px] text-slate-500 uppercase font-bold mb-1">🤝 Patrocinador</p>
+                        <p class="text-[12px] text-slate-500 uppercase font-bold mb-1">🤝 Patrocinador</p>
                         <p id="especie-sponsor" class="text-base font-bold text-slate-800">Biozeo</p>
                     </div>
 
-                    <button onclick="closeEspecie()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-sm">
+                    <button onclick="closeEspecie()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-base">
                         Volver al catálogo
                     </button>
                 </div>
@@ -234,49 +234,49 @@
             <div class="p-6 -mt-8 relative">
                 <div class="bg-white rounded-3xl p-6 shadow-xl">
                     <h2 id="parque-nombre" class="text-2xl font-black text-slate-900 mb-1">Parque Ribalta</h2>
-                    <p id="parque-ubicacion" class="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-4">Centro histórico</p>
+                    <p id="parque-ubicacion" class="text-sm text-emerald-600 font-bold uppercase tracking-wider mb-4">Centro histórico</p>
 
-                    <p id="parque-desc" class="text-sm text-slate-600 leading-relaxed mb-6"></p>
+                    <p id="parque-desc" class="text-base text-slate-600 leading-relaxed mb-6"></p>
 
                     <!-- Info cards -->
                     <div class="grid grid-cols-2 gap-3 mb-6">
                         <div class="bg-emerald-50 p-3 rounded-2xl text-center">
                             <p class="text-lg font-black text-emerald-700" id="parque-superficie">--</p>
-                            <p class="text-[10px] text-emerald-600 font-bold uppercase">Superficie</p>
+                            <p class="text-[11px] text-emerald-600 font-bold uppercase">Superficie</p>
                         </div>
                         <div class="bg-blue-50 p-3 rounded-2xl text-center">
                             <p class="text-lg font-black text-blue-700" id="parque-arboles">--</p>
-                            <p class="text-[10px] text-blue-600 font-bold uppercase">Árboles</p>
+                            <p class="text-[11px] text-blue-600 font-bold uppercase">Árboles</p>
                         </div>
                     </div>
 
                     <!-- Árboles destacados -->
                     <div class="mb-6">
-                        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-3">Árboles destacados</h4>
+                        <h4 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-3">Árboles destacados</h4>
                         <div id="parque-especies" class="flex flex-wrap gap-2"></div>
                     </div>
 
                     <!-- Servicios -->
                     <div class="mb-6">
-                        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-3">Patrocinadores</h4>
+                        <h4 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-3">Patrocinadores</h4>
                         <div id="parque-servicios" class="flex flex-wrap gap-2"></div>
                     </div>
 
                     <!-- Mapa interactivo del parque -->
                     <div class="mb-6">
-                        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-3">📍 Mapa del parque</h4>
+                        <h4 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-3">📍 Mapa del parque</h4>
                         <div id="parque-map" class="bg-slate-100 rounded-2xl overflow-hidden"></div>
-                        <div id="ubicacion-usuario" class="mt-2 text-center text-[10px] text-slate-500">
+                        <div id="ubicacion-usuario" class="mt-2 text-center text-[11px] text-slate-500">
                             <span id="distancia-parque"></span>
                         </div>
                     </div>
 
                     <!-- Botones de acción -->
                     <div class="grid grid-cols-2 gap-3">
-                        <button onclick="abrirMapa()" class="bg-emerald-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] flex items-center justify-center gap-2">
+                        <button onclick="abrirMapa()" class="bg-emerald-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[11px] flex items-center justify-center gap-2">
                             <span>🗺️</span> Cómo llegar
                         </button>
-                        <button onclick="iniciarExploracion()" class="bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[10px] flex items-center justify-center gap-2">
+                        <button onclick="iniciarExploracion()" class="bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-[11px] flex items-center justify-center gap-2">
                             <span>🌳</span> Explorar
                         </button>
                     </div>
@@ -287,10 +287,10 @@
 
     <!-- NAV BAR -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-slate-100 p-4 flex justify-around items-center z-50">
-        <button onclick="showTab('camera')" class="flex flex-col items-center gap-1 text-emerald-600 font-bold text-[10px]"><span>📷</span>CÁMARA</button>
-        <button onclick="showTab('especies')" class="flex flex-col items-center gap-1 text-slate-400 font-bold text-[10px]"><span>🌿</span>FLORA</button>
-        <button onclick="showTab('parques')" class="flex flex-col items-center gap-1 text-slate-400 font-bold text-[10px]"><span>🌳</span>PARQUES</button>
-        <button onclick="showTab('ranking')" class="flex flex-col items-center gap-1 text-slate-400 font-bold text-[10px]"><span>🏆</span>RANKING</button>
+        <button onclick="showTab('camera')" class="flex flex-col items-center gap-1 text-emerald-600 font-bold text-[11px]"><span>📷</span>CÁMARA</button>
+        <button onclick="showTab('especies')" class="flex flex-col items-center gap-1 text-slate-400 font-bold text-[11px]"><span>🌿</span>FLORA</button>
+        <button onclick="showTab('parques')" class="flex flex-col items-center gap-1 text-slate-400 font-bold text-[11px]"><span>🌳</span>PARQUES</button>
+        <button onclick="showTab('ranking')" class="flex flex-col items-center gap-1 text-slate-400 font-bold text-[11px]"><span>🏆</span>RANKING</button>
     </nav>
 
     <canvas id="canvas" class="hidden"></canvas>
@@ -612,11 +612,11 @@
             const successBadge = document.querySelector('#result-modal .bg-emerald-100');
 
             if (dbEntry) {
-                successBadge.innerHTML = `<span class="font-bold text-xs">Rareza: ${rarity}</span>`;
-                successBadge.className = 'bg-purple-100 text-purple-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase italic';
+                successBadge.innerHTML = `<span class="font-bold text-sm">Rareza: ${rarity}</span>`;
+                successBadge.className = 'bg-purple-100 text-purple-700 text-[11px] font-bold px-3 py-1 rounded-full uppercase italic';
             } else {
                 successBadge.innerText = isNewDiscovery ? `¡NUEVO! +${pointsEarned} pts` : `+${pointsEarned} pts`;
-                successBadge.className = 'bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase italic';
+                successBadge.className = 'bg-emerald-100 text-emerald-700 text-[11px] font-bold px-3 py-1 rounded-full uppercase italic';
             }
 
             // Mostrar sponsor info y badge de IA si corresponde
@@ -625,16 +625,16 @@
                 advbergamingDiv.innerHTML = `
                     <div class="space-y-3">
                         ${aiImageUrl ? `
-                        <div class="p-4 bg-purple-50 rounded-2xl border border-purple-100 text-[11px] text-purple-900 italic">
+                        <div class="p-4 bg-purple-50 rounded-2xl border border-purple-100 text-[13px] text-purple-900 italic">
                             <strong>🤖 Imagen generada con IA:</strong> Esta imagen única ha sido creada especialmente para ti usando Gemini Imagen.
                         </div>` : ''}
-                        <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-[11px] text-emerald-900 italic">
+                        <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-[13px] text-emerald-900 italic">
                             <strong>🌳 Especie: </strong>${dbEntry.name}<br>
                             <strong>📍 Parque: </strong>${dbEntry.park}<br>
                             <strong>📊 Cantidad: </strong>${dbEntry.qty} árboles<br>
                             <strong>✨ Rareza: </strong>${rarity}
                         </div>
-                        <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-[11px] text-blue-900 italic">
+                        <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-[13px] text-blue-900 italic">
                             <strong>🤝 Patrocinador: </strong>${dbEntry.sponsor}
                         </div>
                     </div>
@@ -874,22 +874,22 @@
                     <div class="h-32 bg-emerald-100 relative">
                         <img src="${imagenParque}" alt="${parque.name}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.classList.add('bg-gradient-to-br', 'from-emerald-400', 'to-emerald-600', 'flex', 'items-center', 'justify-center'); this.insertAdjacentHTML('afterend', '<span class=\\'text-5xl opacity-30\\'>🌲</span>');">
                         <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                            <h4 class="text-white font-black text-sm">${parque.name}</h4>
-                            <p class="text-white/80 text-[10px] font-bold">${parque.location}</p>
+                            <h4 class="text-white font-black text-base">${parque.name}</h4>
+                            <p class="text-white/80 text-[11px] font-bold">${parque.location}</p>
                         </div>
                     </div>
                     <div class="p-3 space-y-2">
-                        <p class="text-[11px] text-slate-600">${parque.description}</p>
-                        <div class="flex gap-3 text-[10px]">
+                        <p class="text-[13px] text-slate-600">${parque.description}</p>
+                        <div class="flex gap-3 text-[11px]">
                             <span class="text-emerald-600 font-bold">🌳 ${totalArboles} árboles</span>
                             <span class="text-blue-600 font-bold">📋 ${especies.length} especies</span>
                             <span class="text-purple-600 font-bold">📐 ${parque.area}</span>
                         </div>
                         <div class="flex flex-wrap gap-1">
                             ${nombresEspecies.length > 0 ? nombresEspecies.map(n =>
-                                '<span class="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-full">' + n + '</span>'
-                            ).join('') : '<span class="text-slate-400 text-[9px] italic">Sin especies</span>'}
-                            ${especies.length > 3 ? '<span class="text-slate-400 text-[9px]">+' + (especies.length - 3) + ' más</span>' : ''}
+                                '<span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">' + n + '</span>'
+                            ).join('') : '<span class="text-slate-400 text-[10px] italic">Sin especies</span>'}
+                            ${especies.length > 3 ? '<span class="text-slate-400 text-[10px]">+' + (especies.length - 3) + ' más</span>' : ''}
                         </div>
                     </div>
                 </div>`;
@@ -917,20 +917,20 @@
             // Especies con rareza
             if (especies.length > 0) {
                 document.getElementById('parque-especies').innerHTML = especies.map(e =>
-                    `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full">${e.name} (${e.rarity})</span>`
+                    `<span class="bg-emerald-100 text-emerald-700 text-[11px] font-bold px-3 py-1 rounded-full">${e.name} (${e.rarity})</span>`
                 ).join('');
             } else {
-                document.getElementById('parque-especies').innerHTML = '<span class="text-slate-400 text-sm">No hay especies registradas</span>';
+                document.getElementById('parque-especies').innerHTML = '<span class="text-slate-400 text-base">No hay especies registradas</span>';
             }
 
             // Patrocinadores
             const sponsors = [...new Set(especies.map(e => e.sponsor))];
             if (sponsors.length > 0) {
                 document.getElementById('parque-servicios').innerHTML = sponsors.map(s =>
-                    `<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-full">🤝 ${s}</span>`
+                    `<span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full">🤝 ${s}</span>`
                 ).join('');
             } else {
-                document.getElementById('parque-servicios').innerHTML = '<span class="text-slate-400 text-sm">Sin patrocinadores</span>';
+                document.getElementById('parque-servicios').innerHTML = '<span class="text-slate-400 text-base">Sin patrocinadores</span>';
             }
 
             document.getElementById('parque-modal').classList.remove('hidden');
@@ -1325,14 +1325,14 @@
                     <div class="h-24 bg-gradient-to-br ${bgRareza} relative flex items-center justify-center">
                         <span class="text-4xl absolute z-0 opacity-50">${emoji}</span>
                         ${imagen ? `<img src="${imagen}" class="w-full h-full object-cover relative z-10" onerror="this.style.display='none'">` : ''}
-                        <span class="absolute top-2 right-2 ${colorRareza} text-white text-[8px] font-bold px-2 py-0.5 rounded-full z-20">${data.rarity}</span>
+                        <span class="absolute top-2 right-2 ${colorRareza} text-white text-[9px] font-bold px-2 py-0.5 rounded-full z-20">${data.rarity}</span>
                     </div>
                     <div class="p-2">
-                        <h4 class="font-black text-sm text-slate-800 truncate">${data.name}</h4>
-                        <p class="text-[9px] text-slate-400 italic truncate">${scientific}</p>
+                        <h4 class="font-black text-base text-slate-800 truncate">${data.name}</h4>
+                        <p class="text-[10px] text-slate-400 italic truncate">${scientific}</p>
                         <div class="flex justify-between items-center mt-1">
-                            <span class="text-[9px] text-emerald-600 font-bold">${data.qty} uds</span>
-                            <span class="text-[9px] text-slate-400">${data.park.split(' ').pop()}</span>
+                            <span class="text-[10px] text-emerald-600 font-bold">${data.qty} uds</span>
+                            <span class="text-[10px] text-slate-400">${data.park.split(' ').pop()}</span>
                         </div>
                     </div>
                 </div>`;
@@ -1410,7 +1410,7 @@
 
             const badge = document.getElementById('especie-rareza-badge');
             badge.innerText = data.rarity.toUpperCase();
-            badge.className = `absolute top-4 right-4 ${colorRareza} text-white text-[10px] font-bold px-3 py-1 rounded-full`;
+            badge.className = `absolute top-4 right-4 ${colorRareza} text-white text-[11px] font-bold px-3 py-1 rounded-full`;
 
             document.getElementById('especie-modal').classList.remove('hidden');
         }
