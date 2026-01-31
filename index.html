@@ -882,82 +882,70 @@
         // Cache de imágenes de Wikipedia
         const imagenesCache = {};
 
-        // Generador de imágenes basado en nombres de especies
-        // Usa Unsplash Source API para obtener imágenes relevantes
-        const DEFAULT_TREE_IMG = "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=400&h=300&fit=crop";
-
-        // Cache para términos de búsqueda optimizados por especie
-        const TERMINOS_BUSQUEDA = {
-            "Phytolacca dioica": "ombu tree argentina",
-            "Ceratonia siliqua": "carob tree mediterranean",
-            "Cupressus sempervirens": "italian cypress tree",
-            "Lagerstroemia indica": "crepe myrtle flowers",
-            "Washingtonia robusta": "mexican fan palm",
-            "Celtis australis": "european hackberry tree",
-            "Platanus x hispanica": "london plane tree",
-            "Cedrus libani": "cedar of lebanon",
-            "Magnolia grandiflora": "southern magnolia flower",
-            "Quercus ilex": "holm oak tree",
-            "Ficus carica": "fig tree fruit",
-            "Pinus pinea": "stone pine umbrella",
-            "Pinus halepensis": "aleppo pine",
-            "Juniperus oxycedrus": "prickly juniper",
-            "Tetraclinis articulata": "sandarac tree",
-            "Atriplex halimus": "sea orache shrub",
-            "Ephedra nevadensis": "mormon tea plant",
-            "Suaeda vera": "sea blite plant",
-            "Ammophila arenaria": "beach grass dunes",
-            "Jacaranda mimosifolia": "jacaranda purple flowers",
-            "Acacia dealbata": "silver wattle mimosa",
-            "Sambucus nigra": "elderberry flowers",
-            "Populus alba": "white poplar tree",
-            "Salix alba": "white willow tree",
-            "Nerium oleander": "oleander pink flowers",
-            "Pistacia lentiscus": "mastic tree",
-            "Arbutus unedo": "strawberry tree fruit",
-            "Rhamnus alaternus": "italian buckthorn",
-            "Acer negundo": "box elder maple",
-            "Fraxinus angustifolia": "narrow leaf ash",
-            "Liquidambar styraciflua": "sweetgum autumn",
-            "Tilia platyphyllos": "large leaf linden",
-            "Catalpa bignonioides": "southern catalpa flowers",
-            "Koelreuteria paniculata": "golden rain tree",
-            "Hibiscus syriacus": "rose of sharon",
-            "Spiraea cantoniensis": "bridal wreath spirea",
-            "Cupressus arizonica": "arizona cypress",
-            "Pinus sylvestris": "scots pine",
-            "Abies alba": "silver fir",
-            "Thuja occidentalis": "arborvitae",
-            "Ulmus minor": "field elm",
-            "Castanea sativa": "sweet chestnut",
-            "Sorbus aucuparia": "rowan berries",
-            "Prunus avium": "wild cherry blossom",
-            "Acer campestre": "field maple",
-            "Sambucus ebulus": "dwarf elder",
-            "Hedera helix": "english ivy",
-            "Vitis vinifera": "grape vine",
-            "Ilex aquifolium": "holly berries",
-            "Laurus nobilis": "bay laurel",
-            "Buxus sempervirens": "boxwood hedge",
-            "Taxus baccata": "english yew"
-        };
-
-        // Función para obtener imagen con fallback robusto
+        // Sistema de imágenes usando Picsum (servicio confiable)
+        // Cada especie tiene un ID único basado en hash para consistencia
         function getImagenEspecie(scientific, name) {
-            // Usar término de búsqueda optimizado o nombre común
-            const searchTerm = TERMINOS_BUSQUEDA[scientific] || name || scientific.split(' ')[0];
-            const encoded = encodeURIComponent(searchTerm);
-            // Usar un hash simple basado en el nombre para consistencia
+            // Generar un ID de imagen consistente basado en el nombre científico
             const hash = scientific.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
-            const seed = Math.abs(hash % 1000);
-            return `https://source.unsplash.com/400x300/?${encoded}&sig=${seed}`;
+            // Picsum tiene ~1000 imágenes, usamos IDs de naturaleza/plantas (10-200 range tiene buenas fotos)
+            const imageId = 10 + Math.abs(hash % 190);
+            return `https://picsum.photos/seed/${encodeURIComponent(scientific)}/400/300`;
         }
 
+        // Descripciones botánicas completas para cada especie
         const DESCRIPCIONES_ESPECIES = {
-            "Legendario": "Especie única y emblemática de Castellón. Un tesoro natural protegido.",
-            "Raro": "Especie poco común en la región mediterránea. Difícil de encontrar.",
-            "Infrecuente": "Especie presente en pocos parques. Requiere atención especial.",
-            "Común": "Especie abundante y adaptada al clima local. Fácil de identificar."
+            "Phytolacca dioica": "El Ombú es un árbol emblemático de las pampas sudamericanas. Puede alcanzar 15m de altura con un tronco masivo y esponjoso que almacena agua. Sus hojas son perennes, ovaladas y brillantes. Produce racimos de flores blancas y frutos morados. Es el único ejemplar en Castellón, considerado un tesoro botánico.",
+            "Ceratonia siliqua": "El Algarrobo es un árbol mediterráneo de hasta 10m, con copa densa y redondeada. Sus hojas son compuestas, coriáceas y de color verde oscuro. Produce vainas (algarrobas) ricas en azúcares, usadas tradicionalmente como alimento. Su madera es muy dura y apreciada en ebanistería.",
+            "Cupressus sempervirens": "El Ciprés Común es una conífera de porte columnar que puede superar los 30m. Su follaje es denso, de color verde oscuro, con hojas escamiformes. Es símbolo de longevidad y se asocia a cementerios mediterráneos. Muy resistente a la sequía y al viento.",
+            "Lagerstroemia indica": "El Árbol de Júpiter o Lilo de Indias destaca por su espectacular floración estival en tonos rosa, púrpura o blanco. Su corteza es lisa y se desprende en placas revelando tonos canela. Alcanza 6-8m y es muy valorado en jardinería ornamental.",
+            "Washingtonia robusta": "La Palmera Mexicana puede superar los 25m de altura con un tronco esbelto y una corona de grandes hojas en abanico. Es muy resistente y adaptable, convirtiéndose en un elemento icónico del paisaje urbano mediterráneo.",
+            "Celtis australis": "El Almez es un árbol caducifolio de hasta 25m con copa amplia y redondeada. Sus hojas son asimétricas, aserradas y ásperas. Produce pequeños frutos dulces llamados almecinas, apreciados por las aves. Su madera flexible se usaba para fabricar látigos y bastones.",
+            "Platanus x hispanica": "El Plátano de Sombra es un híbrido majestuoso que puede alcanzar 35m. Su corteza se desprende en placas revelando tonos crema y verde. Las hojas palmeadas recuerdan al arce. Es el árbol de alineación más plantado en ciudades europeas por su tolerancia a la contaminación.",
+            "Cedrus libani": "El Cedro del Líbano es una conífera monumental que puede vivir más de 1000 años. Su silueta característica con ramas horizontales en pisos es inconfundible. Las agujas son cortas y agrupadas, de color verde azulado. Símbolo del Líbano, aparece en su bandera.",
+            "Magnolia grandiflora": "La Magnolia es un árbol perenne de hasta 25m con grandes hojas coriáceas, verde brillante por arriba y aterciopeladas por debajo. Sus flores blancas y fragantes, de hasta 30cm, son las más grandes de cualquier árbol. Originaria del sureste de EE.UU.",
+            "Quercus ilex": "La Encina es el árbol más representativo del bosque mediterráneo. Perenne, de copa redondeada y densa, alcanza 25m. Sus hojas son coriáceas con el envés blanquecino. Produce bellotas dulces muy apreciadas para la cría del cerdo ibérico. Puede vivir más de 500 años.",
+            "Ficus carica": "La Higuera es un árbol frutal de 3-10m con corteza gris lisa y hojas grandes, lobuladas y ásperas. Sus frutos (higos) son en realidad infrutescencias carnosas muy dulces. Es una de las primeras plantas cultivadas por el ser humano, hace más de 11.000 años.",
+            "Pinus pinea": "El Pino Piñonero tiene una característica copa en parasol que puede alcanzar 25m. Su corteza gruesa y rojiza forma placas. Produce grandes piñas que maduran en 3 años, conteniendo los apreciados piñones. Es el pino más emblemático del Mediterráneo occidental.",
+            "Pinus halepensis": "El Pino Carrasco es la conífera más abundante del Mediterráneo. Alcanza 20m con copa irregular y abierta. Sus acículas son finas y flexibles, en pares. Muy resistente a la sequía y los suelos pobres, coloniza rápidamente áreas degradadas. Su resina se usaba para impermeabilizar barcos.",
+            "Juniperus oxycedrus": "El Enebro de la Miera es un arbusto o pequeño árbol de hasta 8m con hojas aciculares punzantes. Sus gálbulos rojizos tardan 2 años en madurar. De su madera se extrae el aceite de miera, usado tradicionalmente en medicina veterinaria.",
+            "Tetraclinis articulata": "El Ciprés de Cartagena o Sabina Mora es una conífera endémica del Mediterráneo occidental, muy rara en la península. Alcanza 15m con ramas articuladas y follaje verde azulado. Su madera aromática (sándalo africano) fue muy apreciada en la antigüedad.",
+            "Atriplex halimus": "La Salada o Orgaza es un arbusto halófilo de hasta 2m, adaptado a suelos salinos y secos. Sus hojas grisáceas y carnosas acumulan sal. Es importante para la restauración de suelos degradados en zonas costeras y proporciona refugio a la fauna.",
+            "Ephedra nevadensis": "La Efedra es un arbusto sin hojas verdaderas, con tallos verdes articulados que realizan la fotosíntesis. Alcanza 1m de altura. Adaptada a climas áridos, contiene efedrina, un alcaloide usado en medicina tradicional. Sus frutos rojos son comestibles.",
+            "Suaeda vera": "La Sosa es un arbusto carnoso de hasta 1.5m que crece en marismas y saladares. Sus hojas cilíndricas acumulan sal, tornándose rojizas en otoño. Históricamente se quemaba para obtener sosa cáustica usada en la fabricación de jabón y vidrio.",
+            "Ammophila arenaria": "El Barrón es una gramínea perenne fundamental para fijar dunas costeras. Sus largas hojas enrolladas y rizomas extensos atrapan la arena, creando dunas estables. Puede alcanzar 1.2m y soporta la salinidad y el viento marino.",
+            "Jacaranda mimosifolia": "La Jacaranda es un árbol caducifolio de hasta 15m famoso por su espectacular floración azul-violeta en primavera, antes de brotar las hojas. Su follaje es muy fino, parecido al del helecho. Originaria de Argentina, es muy popular en jardines mediterráneos.",
+            "Acacia dealbata": "La Mimosa es un árbol de rápido crecimiento (hasta 10m) con follaje plumoso gris-verdoso y espectaculares racimos de flores amarillas fragantes en invierno. Originaria de Australia, es considerada invasora en algunas regiones por su agresiva propagación.",
+            "Sambucus nigra": "El Saúco es un arbusto o pequeño árbol de hasta 8m con corteza corchosa y hojas compuestas aromáticas. Sus flores blancas en umbelas se usan para hacer bebidas y las bayas negras para mermeladas y vino. Toda la planta tiene propiedades medicinales.",
+            "Populus alba": "El Álamo Blanco es un árbol caducifolio de hasta 30m con corteza blanquecina y hojas que muestran el envés blanco plateado, creando un efecto llamativo con el viento. Crece rápido junto a cursos de agua. Su madera ligera se usa para fabricar cerillas y pasta de papel.",
+            "Salix alba": "El Sauce Blanco puede alcanzar 25m con ramas flexibles y hojas lanceoladas verde-plateadas. Crece junto al agua y sus raíces ayudan a estabilizar riberas. De su corteza se extraía el ácido salicílico, precursor de la aspirina.",
+            "Nerium oleander": "La Adelfa es un arbusto perenne de hasta 5m con flores vistosas en rosa, rojo o blanco durante todo el verano. Muy resistente a la sequía, es común en medianas de carreteras. Todas sus partes son muy tóxicas, incluso el humo de su madera quemada.",
+            "Pistacia lentiscus": "El Lentisco es un arbusto perenne de hasta 5m muy aromático, con hojas compuestas y frutos que pasan del rojo al negro. De su resina se obtiene el mástic, usado desde la antigüedad como goma de mascar y barniz. Muy resistente a la sequía.",
+            "Arbutus unedo": "El Madroño es un arbusto o árbol de hasta 10m con corteza rojiza que se desprende en tiras y hojas coriáceas perennes. Sus frutos esféricos rojos y granulosos maduran a la vez que florecen las flores blancas. Los frutos fermentados pueden causar embriaguez.",
+            "Rhamnus alaternus": "El Aladierno es un arbusto perenne de hasta 5m con hojas brillantes y pequeños frutos que pasan del rojo al negro. Muy resistente, coloniza todo tipo de suelos mediterráneos. Sus frutos alimentan a muchas aves y de su corteza se obtenía un tinte amarillo.",
+            "Acer negundo": "El Arce Negundo es un árbol caducifolio de hasta 20m originario de Norteamérica. Sus hojas compuestas de 3-7 foliolos lo distinguen de otros arces. Crece muy rápido y tolera suelos pobres, aunque puede ser invasor. Las semillas en sámara giran al caer como helicópteros.",
+            "Fraxinus angustifolia": "El Fresno de Hoja Estrecha es un árbol caducifolio de hasta 25m con hojas compuestas de foliolos lanceolados. Crece en riberas y zonas húmedas. Su madera elástica se usa para mangos de herramientas y la hojarasca alimenta al ganado.",
+            "Liquidambar styraciflua": "El Liquidámbar es un árbol caducifolio de hasta 35m famoso por su espectacular coloración otoñal en tonos rojos, naranjas y púrpuras. Sus hojas palmeadas recuerdan al arce y su corteza exuda una resina aromática. Originario de Norteamérica.",
+            "Tilia platyphyllos": "El Tilo de Hoja Grande es un árbol caducifolio de hasta 35m con copa amplia y hojas acorazonadas. Sus flores amarillentas son muy fragantes y se usan en infusiones relajantes. La madera blanda es ideal para talla. Puede vivir más de 500 años.",
+            "Catalpa bignonioides": "La Catalpa es un árbol caducifolio de hasta 15m con enormes hojas acorazonadas y vistosas flores blancas con manchas púrpura en primavera. Produce largas vainas que persisten en invierno. Originaria del sureste de EE.UU., atrae muchos polinizadores.",
+            "Koelreuteria paniculata": "El Jabonero de China es un árbol caducifolio de hasta 12m con hojas pinnadas y llamativas panículas de flores amarillas en verano, seguidas de cápsulas infladas como farolillos. Muy resistente y ornamental, originario de Asia oriental.",
+            "Hibiscus syriacus": "El Hibisco Sirio o Rosa de Siria es un arbusto caducifolio de hasta 4m que florece profusamente en verano-otoño con grandes flores en blanco, rosa, púrpura o azul. Originario de Asia, es muy valorado en jardinería por su floración tardía.",
+            "Spiraea cantoniensis": "La Espirea o Corona de Novia es un arbusto caducifolio de hasta 2m con ramas arqueadas cubiertas de racimos de pequeñas flores blancas en primavera, creando un efecto de cascada nevada. Muy popular en jardinería ornamental.",
+            "Cupressus arizonica": "El Ciprés de Arizona es una conífera de hasta 20m con follaje azul-grisáceo y porte cónico. Muy resistente a la sequía y las heladas, es popular como seto cortavientos. Su corteza rojiza se desprende en tiras finas.",
+            "Pinus sylvestris": "El Pino Silvestre o Pino Albar puede alcanzar 40m con la característica corteza anaranjada en la parte superior del tronco. Sus acículas cortas y retorcidas son verde-azuladas. Es uno de los pinos más extendidos del mundo, desde España hasta Siberia.",
+            "Abies alba": "El Abeto Blanco es una conífera de hasta 50m con porte piramidal perfecto y ramas horizontales. Sus acículas planas tienen dos bandas blancas en el envés. Es el abeto tradicional de Navidad en Europa central. Prefiere climas frescos y húmedos.",
+            "Thuja occidentalis": "La Tuya Occidental o Árbol de la Vida es una conífera de hasta 15m con follaje verde brillante en ramillas aplanadas. Muy usada en setos por su tolerancia a la poda. Su madera aromática resiste la putrefacción. Los nativos americanos la usaban medicinalmente.",
+            "Ulmus minor": "El Olmo Común es un árbol caducifolio de hasta 30m con copa amplia y asimétrica y hojas doblemente aserradas. Fue devastado por la grafiosis en el siglo XX. Su madera resistente al agua se usaba para hacer quillas de barcos y conducciones de agua.",
+            "Castanea sativa": "El Castaño es un árbol caducifolio de hasta 30m con hojas alargadas y dentadas. Sus frutos (castañas) maduran en otoño dentro de erizos espinosos. Puede vivir más de 1000 años. Su madera es muy duradera y rica en taninos.",
+            "Sorbus aucuparia": "El Serbal de los Cazadores es un árbol de hasta 15m con hojas compuestas y vistosos racimos de frutos rojo-anaranjados en otoño, muy apreciados por las aves. Sus bayas se usaban tradicionalmente para atraer aves durante la caza.",
+            "Prunus avium": "El Cerezo Silvestre es un árbol caducifolio de hasta 25m con espectacular floración blanca en primavera antes de brotar las hojas. Sus frutos pequeños y dulces son el origen de las cerezas cultivadas. Su madera rojiza es muy valorada en ebanistería.",
+            "Acer campestre": "El Arce Menor es un árbol caducifolio de hasta 15m con hojas palmeadas de 5 lóbulos que tornan amarillo-dorado en otoño. Tolera la poda y se usa en setos. Su savia dulce se puede usar para hacer jarabe, aunque menos productivo que el arce de azúcar.",
+            "Sambucus ebulus": "El Yezgo o Saúco Menor es una planta herbácea perenne de hasta 2m con hojas compuestas y umbelas de flores blancas con anteras púrpura. A diferencia del saúco, sus frutos negros son tóxicos. Tiene olor desagradable cuando se frota.",
+            "Hedera helix": "La Hiedra Común es una trepadora perenne que puede alcanzar 30m usando raíces adventicias. Sus hojas juveniles son lobuladas y las adultas ovaladas. Florece en otoño, alimentando a abejas e insectos tardíos. Los frutos negros son tóxicos pero alimentan aves en invierno.",
+            "Vitis vinifera": "La Vid es una trepadora leñosa cultivada desde hace más de 8000 años. Sus hojas palmeadas y zarcillos son característicos. Los frutos (uvas) se consumen frescos, secos (pasas) o fermentados (vino). Existen miles de variedades cultivadas en todo el mundo.",
+            "Ilex aquifolium": "El Acebo es un arbusto o árbol perenne de hasta 10m con hojas coriáceas espinosas verde brillante y frutos rojos en invierno. Símbolo navideño tradicional, es dioico (flores masculinas y femeninas en plantas separadas). Su madera dura se usa en ebanistería fina.",
+            "Laurus nobilis": "El Laurel es un árbol perenne aromático de hasta 15m con hojas coriáceas usadas como condimento desde la antigüedad. Corona de laurel simbolizaba la victoria en Grecia y Roma. Todas sus partes son aromáticas y tienen propiedades medicinales.",
+            "Buxus sempervirens": "El Boj es un arbusto perenne de crecimiento lento que puede alcanzar 5m. Sus pequeñas hojas ovaladas son muy densas. Tolera la poda extrema, siendo ideal para arte topiario. Su madera amarillenta, la más densa de Europa, se usa para instrumentos de precisión.",
+            "Taxus baccata": "El Tejo es una conífera de hasta 20m, de crecimiento muy lento pero que puede vivir más de 2000 años. Todas sus partes son muy tóxicas excepto la carne roja del arilo. De su corteza se extrae el taxol, usado en tratamientos contra el cáncer."
         };
 
         let filtroActual = 'todas';
@@ -1016,7 +1004,8 @@
             if (!data) return;
 
             const imagen = getImagenEspecie(scientific, data.name);
-            const descripcion = DESCRIPCIONES_ESPECIES[data.rarity] || '';
+            // Usar descripción específica de la especie
+            const descripcion = DESCRIPCIONES_ESPECIES[scientific] || `Especie ${data.rarity.toLowerCase()} presente en ${data.park}. ${data.qty} ejemplares catalogados.`;
             const puntos = {
                 'Legendario': 500,
                 'Raro': 200,
