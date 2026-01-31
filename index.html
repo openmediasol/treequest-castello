@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TreeQuest Castelló - Smart Green</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script src="database.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap');
+        body { font-family: 'Outfit', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .video-container { position: relative; overflow: hidden; border-radius: 40px; height: 60vh; background: #000; shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        #video { width: 100%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center p-10 text-center transition-all duration-1000">
+        <h1 class="text-4xl font-black text-slate-900 italic tracking-tighter mb-2">TreeQuest</h1>
+        <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Castelló Smart Green City</p>
+        <div class="mt-20 flex gap-6 opacity-40 grayscale items-center">
+            <span class="font-bold text-xs">BIOZEO</span>
+            <span class="font-bold text-xs">OPENMS</span>
+            <span class="font-bold text-xs uppercase text-red-600">Ayto Castelló</span>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="bg-white p-4 sticky top-0 z-50 border-b border-slate-100 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">🌲</span>
+            <h1 class="text-xl font-black text-slate-800 tracking-tighter">TreeQuest</h1>
+        </div>
+        <div class="text-right">
+            <p id="user-points" class="text-xs font-black text-emerald-600 uppercase leading-none">0 Puntos</p>
+            <p id="user-rank" class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Nivel: Semilla</p>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto p-4 pb-32">
+        
+        <!-- PESTAÑA 1: CÁMARA (EXPLORACIÓN) -->
+        <div id="camera-tab" class="tab-content active space-y-6">
+            <div class="video-container border-4 border-white shadow-2xl">
+                <video id="video" autoplay playsinline></video>
+                <div class="absolute inset-0 border-[30px] border-black/10 pointer-events-none"></div>
+                <button onclick="captureAndIdentify()" class="absolute bottom-6 left-1/2 -translate-x-1/2 w-20 h-20 bg-white rounded-full border-8 border-emerald-100 shadow-2xl active:scale-90 transition"></button>
+            </div>
+            <div class="text-center p-4 bg-emerald-50 rounded-3xl border border-emerald-100">
+                <p class="text-[11px] text-emerald-800 font-bold uppercase tracking-widest">Misión Actual: Parque Sensal</p>
+                <p class="text-xs text-emerald-600 italic">"Encuentra el legendario Ombú para ganar 500 puntos"</p>
+            </div>
+        </div>
+
+        <!-- PESTAÑA 2: RANKING ESCOLAR -->
+        <div id="ranking-tab" class="tab-content space-y-4">
+            <h3 class="text-2xl font-black text-slate-800 tracking-tighter italic">LIGA DE CENTROS</h3>
+            <p class="text-xs text-slate-500">60 centros educativos de Castellón</p>
+
+            <!-- Filtros por tipo -->
+            <div class="flex gap-2 overflow-x-auto pb-2">
+                <button onclick="loadRanking('todos')" class="filtro-ranking active bg-emerald-600 text-white text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Todos (60)</button>
+                <button onclick="loadRanking('público')" class="filtro-ranking bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">🏫 CEIP/IES (48)</button>
+                <button onclick="loadRanking('concertado')" class="filtro-ranking bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">🎓 Concertados (7)</button>
+                <button onclick="loadRanking('privado')" class="filtro-ranking bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">🏛️ Privados (5)</button>
+            </div>
+
+            <div class="space-y-2">
+                <!-- Ranking dinámico -->
+            </div>
+        </div>
+
+        <!-- PESTAÑA 3: PARQUES DE CASTELLÓN -->
+        <div id="parques-tab" class="tab-content space-y-4">
+            <h3 class="text-2xl font-black text-slate-800 tracking-tighter italic">PARQUES DE CASTELLÓ</h3>
+            <p class="text-xs text-slate-500">Descubre los espacios verdes de nuestra ciudad</p>
+
+            <div id="parques-list" class="space-y-3">
+                <!-- Los parques se cargan dinámicamente -->
+            </div>
+        </div>
+
+        <!-- PESTAÑA 4: CATÁLOGO DE ESPECIES -->
+        <div id="especies-tab" class="tab-content space-y-4">
+            <h3 class="text-2xl font-black text-slate-800 tracking-tighter italic">CATÁLOGO DE FLORA</h3>
+            <p class="text-xs text-slate-500">Todas las especies de los parques de Castellón</p>
+
+            <!-- Filtros -->
+            <div class="flex gap-2 overflow-x-auto pb-2">
+                <button onclick="filtrarEspecies('todas')" class="filtro-btn active bg-emerald-600 text-white text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Todas</button>
+                <button onclick="filtrarEspecies('Legendario')" class="filtro-btn bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Legendario</button>
+                <button onclick="filtrarEspecies('Raro')" class="filtro-btn bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Raro</button>
+                <button onclick="filtrarEspecies('Infrecuente')" class="filtro-btn bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Infrecuente</button>
+                <button onclick="filtrarEspecies('Común')" class="filtro-btn bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">Común</button>
+            </div>
+
+            <div id="especies-list" class="grid grid-cols-2 gap-3">
+                <!-- Las especies se cargan dinámicamente -->
+            </div>
+        </div>
+    </main>
+
+    <!-- RESULTADO IA MODAL -->
+    <div id="result-modal" class="fixed inset-0 bg-white z-[200] hidden overflow-y-auto p-6">
+        <div class="max-w-md mx-auto">
+            <div class="flex justify-between mb-6">
+                <button onclick="closeResult()" class="text-2xl font-bold">✕</button>
+                <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase italic">¡Éxito!</span>
+            </div>
+
+            <div class="text-center mb-8">
+                <h2 id="res-name" class="text-4xl font-black text-slate-900 leading-none mb-1 italic">PINO PIÑONERO</h2>
+                <p id="res-sci" class="text-xs text-slate-400 font-bold tracking-widest uppercase">Pinus pinea</p>
+            </div>
+
+            <!-- GALERÍA QUÍNTUPLE IA -->
+            <div class="grid grid-cols-2 gap-2 mb-8" id="gallery">
+                <div class="col-span-2 h-48 bg-slate-100 rounded-[2rem] overflow-hidden"><img id="img-0" src="" class="w-full h-full object-cover"></div>
+                <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-1" src="" class="w-full h-full object-cover"></div>
+                <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-2" src="" class="w-full h-full object-cover"></div>
+                <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-3" src="" class="w-full h-full object-cover"></div>
+                <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-4" src="" class="w-full h-full object-cover"></div>
+            </div>
+
+            <!-- ADVERGAMING INFO -->
+            <div class="space-y-3 mb-8">
+                <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-[11px] text-blue-900 italic">
+                    <strong>OPENMS:</strong> Este árbol purifica el aire de Castellón mediante fotocatálisis natural.
+                </div>
+                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-[11px] text-emerald-900 italic">
+                    <strong>BIOZEO:</strong> Nutrimos sus raíces con zeolitas naturales para ahorrar agua.
+                </div>
+            </div>
+
+            <button onclick="closeResult()" class="w-full bg-slate-900 text-white font-black py-5 rounded-3xl uppercase tracking-widest text-xs shadow-xl shadow-slate-300">Seguir Explorando</button>
+        </div>
+    </div>
+
+    <!-- MODAL DETALLE ESPECIE -->
+    <div id="especie-modal" class="fixed inset-0 bg-white z-[200] hidden overflow-y-auto">
+        <div class="relative">
+            <div class="h-64 bg-emerald-100 relative">
+                <img id="especie-img" src="" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                <button onclick="closeEspecie()" class="absolute top-4 left-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-xl font-bold">✕</button>
+                <div id="especie-rareza-badge" class="absolute top-4 right-4 bg-purple-500 text-white text-[10px] font-bold px-3 py-1 rounded-full">LEGENDARIO</div>
+            </div>
+
+            <div class="p-6 -mt-12 relative">
+                <div class="bg-white rounded-3xl p-6 shadow-xl">
+                    <h2 id="especie-nombre" class="text-2xl font-black text-slate-900 mb-1">Ombú</h2>
+                    <p id="especie-cientifico" class="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-4">Phytolacca dioica</p>
+
+                    <p id="especie-descripcion" class="text-sm text-slate-600 leading-relaxed mb-6"></p>
+
+                    <div class="grid grid-cols-3 gap-2 mb-6">
+                        <div class="bg-emerald-50 p-3 rounded-2xl text-center">
+                            <p class="text-lg font-black text-emerald-700" id="especie-cantidad">1</p>
+                            <p class="text-[9px] text-emerald-600 font-bold uppercase">Ejemplares</p>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded-2xl text-center">
+                            <p class="text-sm font-black text-blue-700" id="especie-parque">Sensal</p>
+                            <p class="text-[9px] text-blue-600 font-bold uppercase">Parque</p>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded-2xl text-center">
+                            <p class="text-sm font-black text-purple-700" id="especie-puntos">500</p>
+                            <p class="text-[9px] text-purple-600 font-bold uppercase">Puntos</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 rounded-2xl mb-4">
+                        <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Patrocinador</p>
+                        <p id="especie-sponsor" class="text-sm font-bold text-slate-800">Biozeo</p>
+                    </div>
+
+                    <button onclick="closeEspecie()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs">
+                        Volver al catálogo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DETALLE PARQUE -->
+    <div id="parque-modal" class="fixed inset-0 bg-white z-[200] hidden overflow-y-auto">
+        <div class="relative">
+            <!-- Imagen de cabecera -->
+            <div class="h-56 bg-emerald-100 relative">
+                <img id="parque-img" src="" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <button onclick="closeParque()" class="absolute top-4 left-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-xl font-bold">✕</button>
+            </div>
+
+            <div class="p-6 -mt-8 relative">
+                <div class="bg-white rounded-3xl p-6 shadow-xl">
+                    <h2 id="parque-nombre" class="text-2xl font-black text-slate-900 mb-1">Parque Ribalta</h2>
+                    <p id="parque-ubicacion" class="text-xs text-emerald-600 font-bold uppercase tracking-wider mb-4">Centro histórico</p>
+
+                    <p id="parque-desc" class="text-sm text-slate-600 leading-relaxed mb-6"></p>
+
+                    <!-- Info cards -->
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <div class="bg-emerald-50 p-3 rounded-2xl text-center">
+                            <p class="text-lg font-black text-emerald-700" id="parque-superficie">--</p>
+                            <p class="text-[10px] text-emerald-600 font-bold uppercase">Superficie</p>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded-2xl text-center">
+                            <p class="text-lg font-black text-blue-700" id="parque-arboles">--</p>
+                            <p class="text-[10px] text-blue-600 font-bold uppercase">Árboles</p>
+                        </div>
+                    </div>
+
+                    <!-- Árboles destacados -->
+                    <div class="mb-6">
+                        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-3">Árboles destacados</h4>
+                        <div id="parque-especies" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <!-- Servicios -->
+                    <div class="mb-6">
+                        <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-3">Servicios</h4>
+                        <div id="parque-servicios" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <!-- Botón ir al parque -->
+                    <button onclick="abrirMapa()" class="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs flex items-center justify-center gap-2">
+                        <span>📍</span> Cómo llegar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAV BAR -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-slate-100 p-4 flex justify-around items-center z-50">
+        <button onclick="showTab('camera')" class="flex flex-col items-center gap-1 text-emerald-600 font-bold text-[10px]"><span>📷</span>CÁMARA</button>
+        <button onclick="showTab('especies')" class="flex flex-col items-center gap-1 text-slate-400 font-bold text-[10px]"><span>🌿</span>FLORA</button>
+        <button onclick="showTab('parques')" class="flex flex-col items-center gap-1 text-slate-400 font-bold text-[10px]"><span>🌳</span>PARQUES</button>
+        <button onclick="showTab('ranking')" class="flex flex-col items-center gap-1 text-slate-400 font-bold text-[10px]"><span>🏆</span>RANKING</button>
+    </nav>
+
+    <canvas id="canvas" class="hidden"></canvas>
+
+    <script>
+        // CONFIGURACIÓN
+        // Las API keys están protegidas en el backend (Netlify Functions)
+        // Las rutas /api/* se redirigen automáticamente a /.netlify/functions/*
+        const API_BASE_URL = '';
+
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+
+        // =====================
+        // SISTEMA DE PUNTOS CON PERSISTENCIA
+        // =====================
+        const POINTS_KEY = 'treequest_points';
+        const TREES_KEY = 'treequest_trees';
+
+        function getPoints() {
+            return parseInt(localStorage.getItem(POINTS_KEY) || '0');
+        }
+
+        function addPoints(amount) {
+            const newPoints = getPoints() + amount;
+            localStorage.setItem(POINTS_KEY, newPoints.toString());
+            updatePointsUI();
+            return newPoints;
+        }
+
+        function getDiscoveredTrees() {
+            return JSON.parse(localStorage.getItem(TREES_KEY) || '[]');
+        }
+
+        function addDiscoveredTree(species) {
+            const trees = getDiscoveredTrees();
+            if (!trees.includes(species)) {
+                trees.push(species);
+                localStorage.setItem(TREES_KEY, JSON.stringify(trees));
+                return true; // Nuevo descubrimiento
+            }
+            return false; // Ya descubierto
+        }
+
+        function getRank(points) {
+            if (points >= 5000) return 'Guardián del Bosque';
+            if (points >= 2000) return 'Explorador Experto';
+            if (points >= 500) return 'Brote';
+            if (points >= 100) return 'Plantón';
+            return 'Semilla';
+        }
+
+        function updatePointsUI() {
+            const points = getPoints();
+            document.getElementById('user-points').innerText = `${points} Puntos`;
+            document.getElementById('user-rank').innerText = `Nivel: ${getRank(points)}`;
+        }
+
+        // =====================
+        // INICIALIZACIÓN
+        // =====================
+
+        // Inicializar Cámara con manejo de errores
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' }
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error('Error al acceder a la cámara:', err);
+                showError('No se pudo acceder a la cámara. Asegúrate de dar permisos.');
+            }
+        }
+        initCamera();
+
+        // Cargar puntos guardados
+        updatePointsUI();
+
+        // Ocultar Splash
+        setTimeout(() => document.getElementById('splash').style.display = 'none', 3000);
+
+        // =====================
+        // NAVEGACIÓN
+        // =====================
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+
+            // Actualizar estilos de navegación
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('text-emerald-600');
+                btn.classList.add('text-slate-400');
+            });
+            event.target.closest('button').classList.remove('text-slate-400');
+            event.target.closest('button').classList.add('text-emerald-600');
+
+            // Cargar contenido según pestaña
+            if (tab === 'ranking') {
+                loadRanking();
+            } else if (tab === 'parques') {
+                loadParques();
+            } else if (tab === 'especies') {
+                loadEspecies();
+            }
+        }
+
+        // =====================
+        // GENERACIÓN DE IMÁGENES CON IA (Gemini Imagen)
+        // =====================
+        async function generateAIImage(species, commonName, rarity) {
+            try {
+                console.log(`Generando imagen IA para: ${species} (${commonName})`);
+                const res = await fetch(`${API_BASE_URL}/api/generate-image`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ species, commonName, rarity })
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Error API: ${res.status}`);
+                }
+
+                const data = await res.json();
+                console.log('Imagen IA generada:', data.url, data.cached ? '(cacheada)' : '(nueva)');
+                return data.url;
+            } catch (error) {
+                console.error('Error generando imagen IA:', error);
+                return null;
+            }
+        }
+
+        // Mostrar indicador de carga durante generación IA
+        function showAILoadingIndicator() {
+            const gallery = document.getElementById('gallery');
+            const mainImg = document.getElementById('img-0');
+            if (mainImg) {
+                mainImg.parentElement.innerHTML = `
+                    <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-100 to-emerald-100">
+                        <div class="animate-spin text-4xl mb-2">🤖</div>
+                        <p class="text-xs font-bold text-purple-700 uppercase tracking-wider">Generando imagen única...</p>
+                        <p class="text-[10px] text-purple-500 mt-1">Powered by Gemini AI</p>
+                    </div>
+                `;
+            }
+        }
+
+        // =====================
+        // IDENTIFICACIÓN DE ÁRBOLES
+        // =====================
+        let isIdentifying = false;
+
+        async function captureAndIdentify() {
+            if (isIdentifying) return;
+            isIdentifying = true;
+
+            const captureBtn = document.querySelector('.video-container button');
+            captureBtn.innerHTML = '<span class="animate-spin">⏳</span>';
+            captureBtn.disabled = true;
+
+            try {
+                const context = canvas.getContext('2d');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0);
+
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
+
+                if (!blob) {
+                    throw new Error('No se pudo capturar la imagen');
+                }
+
+                // Convertir blob a base64 para enviar al proxy
+                const base64 = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                    reader.readAsDataURL(blob);
+                });
+
+                // LLAMADA A PLANTNET via proxy (API key protegida en backend)
+                const res = await fetch(`${API_BASE_URL}/api/identify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageBase64: base64, imageType: 'image/jpeg' })
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Error de API: ${res.status}`);
+                }
+
+                const data = await res.json();
+
+                if (!data.results || data.results.length === 0) {
+                    throw new Error('No se pudo identificar la planta. Intenta con otra foto más clara.');
+                }
+
+                const result = data.results[0];
+                const species = result.species.scientificNameWithoutAuthor;
+                const commonNames = result.species.commonNames || [];
+                const confidence = Math.round(result.score * 100);
+                const images = result.images || [];
+
+                showResult(species, commonNames[0] || species, confidence, images);
+
+            } catch (error) {
+                console.error('Error en identificación:', error);
+                showError(error.message || 'Error al identificar. Inténtalo de nuevo.');
+            } finally {
+                isIdentifying = false;
+                captureBtn.innerHTML = '';
+                captureBtn.disabled = false;
+            }
+        }
+
+        async function showResult(species, commonName, confidence, apiImages) {
+            // Buscar en la base de datos de Castellón
+            const dbEntry = CASTELLO_DATABASE.speciesMapping[species];
+            const displayName = dbEntry?.name || commonName;
+            const rarity = dbEntry?.rarity || 'Desconocida';
+
+            document.getElementById('res-name').innerText = displayName.toUpperCase();
+            document.getElementById('res-sci').innerText = species;
+
+            // Verificar si es nuevo descubrimiento ANTES de añadirlo
+            const trees = getDiscoveredTrees();
+            const isNewDiscovery = !trees.includes(species);
+
+            // Mostrar modal inmediatamente con loading
+            document.getElementById('result-modal').classList.remove('hidden');
+
+            // Si es nuevo descubrimiento y está en la BD, generar imagen con IA
+            let aiImageUrl = null;
+            if (isNewDiscovery && dbEntry) {
+                // Restaurar estructura de galería con loading
+                const gallery = document.getElementById('gallery');
+                gallery.innerHTML = `
+                    <div class="col-span-2 h-48 bg-slate-100 rounded-[2rem] overflow-hidden">
+                        <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-100 to-emerald-100">
+                            <div class="animate-spin text-4xl mb-2">🤖</div>
+                            <p class="text-xs font-bold text-purple-700 uppercase tracking-wider">Generando imagen única...</p>
+                            <p class="text-[10px] text-purple-500 mt-1">Powered by Gemini AI</p>
+                        </div>
+                    </div>
+                    <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-1" src="" class="w-full h-full object-cover"></div>
+                    <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-2" src="" class="w-full h-full object-cover"></div>
+                    <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-3" src="" class="w-full h-full object-cover"></div>
+                    <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-4" src="" class="w-full h-full object-cover"></div>
+                `;
+
+                // Cargar imágenes secundarias de PlantNet mientras genera IA
+                for (let i = 1; i < 5; i++) {
+                    const img = document.getElementById(`img-${i}`);
+                    if (img && apiImages[i] && apiImages[i].url && apiImages[i].url.m) {
+                        img.src = apiImages[i].url.m;
+                    } else if (img) {
+                        img.src = `https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=200&h=200&fit=crop`;
+                    }
+                }
+
+                // Generar imagen con IA (async)
+                aiImageUrl = await generateAIImage(species, displayName, rarity);
+
+                // Actualizar galería con imagen IA
+                gallery.innerHTML = `
+                    <div class="col-span-2 h-48 bg-slate-100 rounded-[2rem] overflow-hidden relative">
+                        <img id="img-0" src="${aiImageUrl || (apiImages[0]?.url?.m || 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=400')}" class="w-full h-full object-cover">
+                        ${aiImageUrl ? '<span class="absolute bottom-2 right-2 bg-purple-600 text-white text-[8px] font-bold px-2 py-1 rounded-full">🤖 IA</span>' : ''}
+                    </div>
+                    <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-1" src="" class="w-full h-full object-cover"></div>
+                    <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-2" src="" class="w-full h-full object-cover"></div>
+                    <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-3" src="" class="w-full h-full object-cover"></div>
+                    <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-4" src="" class="w-full h-full object-cover"></div>
+                `;
+            } else {
+                // Restaurar estructura de galería normal
+                const gallery = document.getElementById('gallery');
+                gallery.innerHTML = `
+                    <div class="col-span-2 h-48 bg-slate-100 rounded-[2rem] overflow-hidden"><img id="img-0" src="" class="w-full h-full object-cover"></div>
+                    <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-1" src="" class="w-full h-full object-cover"></div>
+                    <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-2" src="" class="w-full h-full object-cover"></div>
+                    <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-3" src="" class="w-full h-full object-cover"></div>
+                    <div class="h-24 bg-slate-100 rounded-2xl overflow-hidden"><img id="img-4" src="" class="w-full h-full object-cover"></div>
+                `;
+            }
+
+            // Cargar imágenes de PlantNet en slots restantes
+            for (let i = 0; i < 5; i++) {
+                const img = document.getElementById(`img-${i}`);
+                if (!img) continue;
+
+                // Si es la imagen principal y tenemos IA, ya está cargada
+                if (i === 0 && aiImageUrl) continue;
+
+                if (apiImages[i] && apiImages[i].url && apiImages[i].url.m) {
+                    img.src = apiImages[i].url.m;
+                } else {
+                    img.src = `https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=200&h=200&fit=crop`;
+                }
+            }
+
+            // Registrar descubrimiento y calcular puntos
+            addDiscoveredTree(species); // Registrar (isNewDiscovery ya calculado arriba)
+            let pointsEarned = 50; // Puntos base
+
+            // Bonus por rareza
+            if (dbEntry) {
+                if (rarity === 'Legendario') pointsEarned += 450;
+                else if (rarity === 'Raro') pointsEarned += 150;
+                else if (rarity === 'Infrecuente') pointsEarned += 75;
+                // 'Común' no suma bonus
+            }
+
+            if (isNewDiscovery) pointsEarned += 100; // Bonus por nuevo descubrimiento
+            if (confidence > 80) pointsEarned += 25; // Bonus por foto clara
+
+            addPoints(pointsEarned);
+
+            // Mostrar información en el modal
+            const successBadge = document.querySelector('#result-modal .bg-emerald-100');
+
+            if (dbEntry) {
+                successBadge.innerHTML = `<span class="font-bold text-xs">Rareza: ${rarity}</span>`;
+                successBadge.className = 'bg-purple-100 text-purple-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase italic';
+            } else {
+                successBadge.innerText = isNewDiscovery ? `¡NUEVO! +${pointsEarned} pts` : `+${pointsEarned} pts`;
+                successBadge.className = 'bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase italic';
+            }
+
+            // Mostrar sponsor info y badge de IA si corresponde
+            const advbergamingDiv = document.querySelector('#result-modal .p-4.bg-blue-50');
+            if (dbEntry && dbEntry.sponsor) {
+                advbergamingDiv.innerHTML = `
+                    <div class="space-y-3">
+                        ${aiImageUrl ? `
+                        <div class="p-4 bg-purple-50 rounded-2xl border border-purple-100 text-[11px] text-purple-900 italic">
+                            <strong>🤖 Imagen generada con IA:</strong> Esta imagen única ha sido creada especialmente para ti usando Gemini Imagen.
+                        </div>` : ''}
+                        <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-[11px] text-emerald-900 italic">
+                            <strong>🌳 Especie: </strong>${dbEntry.name}<br>
+                            <strong>📍 Parque: </strong>${dbEntry.park}<br>
+                            <strong>📊 Cantidad: </strong>${dbEntry.qty} árboles<br>
+                            <strong>✨ Rareza: </strong>${rarity}
+                        </div>
+                        <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 text-[11px] text-blue-900 italic">
+                            <strong>🤝 Patrocinador: </strong>${dbEntry.sponsor}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Confetti al final
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        }
+
+        function showError(message) {
+            // Crear modal de error temporal
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-20 left-4 right-4 bg-red-500 text-white p-4 rounded-2xl text-center font-bold text-sm z-[300] shadow-xl';
+            errorDiv.innerText = message;
+            document.body.appendChild(errorDiv);
+
+            setTimeout(() => errorDiv.remove(), 4000);
+        }
+
+        function closeResult() {
+            document.getElementById('result-modal').classList.add('hidden');
+        }
+
+        // =====================
+        // RANKING DE CENTROS EDUCATIVOS
+        // =====================
+        let filtroRanking = 'todos';
+
+        function loadRanking(filtro = filtroRanking) {
+            filtroRanking = filtro;
+            const container = document.querySelector('#ranking-tab .space-y-2');
+
+            // Actualizar botones de filtro
+            document.querySelectorAll('.filtro-ranking').forEach(btn => {
+                btn.classList.remove('active', 'bg-emerald-600', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            if (event?.target) {
+                event.target.classList.remove('bg-slate-100', 'text-slate-600');
+                event.target.classList.add('active', 'bg-emerald-600', 'text-white');
+            }
+
+            // Filtrar por tipo de centro
+            let schools = CASTELLO_DATABASE.schools;
+            if (filtro !== 'todos') {
+                schools = schools.filter(s => s.type === filtro);
+            }
+
+            // Ordenar por puntos (descendente)
+            const sorted = [...schools].sort((a, b) => b.points - a.points);
+
+            // Solo mostrar centros activos primero, luego los inactivos
+            const activos = sorted.filter(s => s.active || s.points > 0);
+            const inactivos = sorted.filter(s => !s.active && s.points === 0);
+
+            renderRanking([...activos, ...inactivos.slice(0, 10)], inactivos.length);
+        }
+
+        function renderRanking(data, pendientes) {
+            const container = document.querySelector('#ranking-tab .space-y-2');
+
+            let html = data.map((school, i) => {
+                const isActive = school.active || school.points > 0;
+                const typeIcon = {
+                    'público': '🏫',
+                    'concertado': '🎓',
+                    'privado': '🏛️'
+                }[school.type] || '📚';
+
+                const levelBadge = school.level.includes('eso') || school.level.includes('bachillerato')
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'bg-emerald-100 text-emerald-700';
+
+                return `
+                <div class="bg-white p-4 rounded-3xl border ${i < 3 && isActive ? 'border-2 border-emerald-200' : 'border-slate-100'} ${!isActive ? 'opacity-50' : ''}">
+                    <div class="flex justify-between items-center">
+                        <span class="font-black ${i === 0 && isActive ? 'text-yellow-500' : i === 1 && isActive ? 'text-slate-400' : i === 2 && isActive ? 'text-amber-600' : 'text-slate-300'} w-8">${isActive ? (i + 1) + 'º' : '-'}</span>
+                        <div class="flex-1 ml-2">
+                            <span class="font-bold text-sm text-slate-700">${typeIcon} ${school.name}</span>
+                            <div class="flex gap-1 mt-1">
+                                <span class="${levelBadge} text-[8px] font-bold px-2 py-0.5 rounded-full uppercase">${school.level}</span>
+                                <span class="bg-slate-100 text-slate-500 text-[8px] font-bold px-2 py-0.5 rounded-full">${school.type}</span>
+                            </div>
+                        </div>
+                        <span class="font-black ${isActive ? 'text-slate-900' : 'text-slate-300'}">${school.points.toLocaleString()} pts</span>
+                    </div>
+                </div>`;
+            }).join('');
+
+            if (pendientes > 10) {
+                html += `<div class="text-center p-3 text-slate-400 text-xs">+${pendientes - 10} centros pendientes de activación</div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Cargar ranking inicial
+        loadRanking();
+
+        // =====================
+        // PARQUES DE CASTELLÓN
+        // =====================
+        const PARQUES_DATA = [
+            {
+                id: 1,
+                nombre: "Parque Ribalta",
+                ubicacion: "Centro histórico",
+                descripcion: "El pulmón verde más emblemático de Castellón, inaugurado en 1876. Jardín romántico con estanque, templete de música y monumentos históricos. Alberga especies centenarias y es punto de encuentro tradicional de la ciudad.",
+                superficie: "42.000 m²",
+                arboles: "850+",
+                especies: ["Ficus centenario", "Palmera washingtonia", "Cedro del Líbano", "Magnolia", "Plátano de sombra"],
+                servicios: ["Zona infantil", "Templete música", "Estanque", "Biblioteca", "Fuentes"],
+                imagen: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Parc_Ribalta_de_Castell%C3%B3_de_la_Plana.JPG/1280px-Parc_Ribalta_de_Castell%C3%B3_de_la_Plana.JPG",
+                coordenadas: { lat: 39.9847, lng: -0.0372 }
+            },
+            {
+                id: 2,
+                nombre: "Parque del Meridiano",
+                ubicacion: "Av. del Mar",
+                descripcion: "Parque lineal moderno que conecta la ciudad con el Grao. Diseñado para fomentar la movilidad sostenible con carril bici y amplias zonas peatonales. Vegetación mediterránea adaptada al clima local.",
+                superficie: "35.000 m²",
+                arboles: "600+",
+                especies: ["Olivo", "Algarrobo", "Pino carrasco", "Adelfa", "Palmera datilera"],
+                servicios: ["Carril bici", "Gimnasio exterior", "Zona canina", "Fuentes"],
+                imagen: "https://images.unsplash.com/photo-1588714477688-cf28a50e94f7?w=800",
+                coordenadas: { lat: 39.9725, lng: -0.0198 }
+            },
+            {
+                id: 3,
+                nombre: "Parque del Pinar",
+                ubicacion: "Grao de Castellón",
+                descripcion: "Extenso pinar mediterráneo junto a la playa del Pinar. Zona natural protegida con dunas y vegetación autóctona. Ideal para paseos, picnic y conexión con la naturaleza cerca del mar.",
+                superficie: "120.000 m²",
+                arboles: "2.000+",
+                especies: ["Pino piñonero", "Pino carrasco", "Sabina", "Enebro", "Tamarindo"],
+                servicios: ["Merenderos", "Duchas playa", "Aparcamiento", "Acceso playa"],
+                imagen: "https://images.unsplash.com/photo-1476610182048-b716b8518aae?w=800",
+                coordenadas: { lat: 39.9634, lng: -0.0089 }
+            },
+            {
+                id: 4,
+                nombre: "Parque Rafalafena",
+                ubicacion: "Rafalafena",
+                descripcion: "Parque urbano moderno en el barrio de Rafalafena. Destaca por sus amplias zonas verdes, lago artificial y equipamientos deportivos. Punto de encuentro familiar los fines de semana.",
+                superficie: "28.000 m²",
+                arboles: "400+",
+                especies: ["Tipuana", "Jacaranda", "Morera", "Ciprés", "Naranjo amargo"],
+                servicios: ["Lago artificial", "Zona infantil", "Pistas deportivas", "Cafetería"],
+                imagen: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800",
+                coordenadas: { lat: 39.9956, lng: -0.0445 }
+            },
+            {
+                id: 5,
+                nombre: "Parque Sensal",
+                ubicacion: "UJI - Sensal",
+                descripcion: "Parque junto a la Universitat Jaume I con el famoso Ombú centenario. Combina zonas ajardinadas con espacios naturales. Popular entre estudiantes y familias del entorno universitario.",
+                superficie: "18.000 m²",
+                arboles: "250+",
+                especies: ["Ombú centenario", "Eucalipto", "Pino", "Almez", "Olmo"],
+                servicios: ["Zona infantil", "Bancos", "Sombra natural", "Acceso UJI"],
+                imagen: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800",
+                coordenadas: { lat: 39.9912, lng: -0.0667 }
+            },
+            {
+                id: 6,
+                nombre: "Parque del Oeste",
+                ubicacion: "Grupo San Lorenzo",
+                descripcion: "Parque de barrio renovado recientemente con criterios de sostenibilidad. Incluye jardín de plantas aromáticas y huerto urbano comunitario. Modelo de participación vecinal.",
+                superficie: "15.000 m²",
+                arboles: "180+",
+                especies: ["Almendro", "Granado", "Higuera", "Lavanda", "Romero"],
+                servicios: ["Huerto urbano", "Jardín aromático", "Zona infantil", "Petanca"],
+                imagen: "https://images.unsplash.com/photo-1559304787-e5b4ef5e8061?w=800",
+                coordenadas: { lat: 39.9789, lng: -0.0512 }
+            }
+        ];
+
+        let parqueActual = null;
+
+        function getEspeciesParque(nombreParque) {
+            const todas = Object.entries(CASTELLO_DATABASE.speciesMapping);
+            const filtradas = todas.filter(([_, data]) => data.park === nombreParque);
+            console.log('Buscando especies para:', nombreParque, '- Encontradas:', filtradas.length);
+            return filtradas.map(([sci, data]) => ({ scientific: sci, ...data }));
+        }
+
+        function loadParques() {
+            console.log('=== CARGANDO PARQUES ===');
+            console.log('CASTELLO_DATABASE:', CASTELLO_DATABASE);
+
+            const container = document.getElementById('parques-list');
+            if (!container) {
+                console.error('No se encontró el contenedor parques-list');
+                return;
+            }
+
+            const parques = CASTELLO_DATABASE.parks;
+            console.log('Total parques:', parques.length);
+
+            let html = '';
+            for (const parque of parques) {
+                const especies = getEspeciesParque(parque.name);
+                const totalArboles = especies.reduce((sum, e) => sum + e.qty, 0);
+                const nombresEspecies = especies.slice(0, 3).map(e => e.name);
+
+                console.log(`Parque: ${parque.name} | Especies: ${especies.length} | Árboles: ${totalArboles}`);
+
+                html += `
+                <div onclick="openParqueFromDB('${parque.id}')" class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm active:scale-[0.98] transition cursor-pointer">
+                    <div class="h-28 bg-gradient-to-br from-emerald-400 to-emerald-600 relative flex items-center justify-center">
+                        <span class="text-5xl opacity-30">🌲</span>
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                            <h4 class="text-white font-black text-sm">${parque.name}</h4>
+                            <p class="text-white/80 text-[10px] font-bold">${parque.location}</p>
+                        </div>
+                    </div>
+                    <div class="p-3 space-y-2">
+                        <p class="text-[11px] text-slate-600">${parque.description}</p>
+                        <div class="flex gap-3 text-[10px]">
+                            <span class="text-emerald-600 font-bold">🌳 ${totalArboles} árboles</span>
+                            <span class="text-blue-600 font-bold">📋 ${especies.length} especies</span>
+                            <span class="text-purple-600 font-bold">📐 ${parque.area}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1">
+                            ${nombresEspecies.length > 0 ? nombresEspecies.map(n =>
+                                '<span class="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-full">' + n + '</span>'
+                            ).join('') : '<span class="text-slate-400 text-[9px] italic">Sin especies</span>'}
+                            ${especies.length > 3 ? '<span class="text-slate-400 text-[9px]">+' + (especies.length - 3) + ' más</span>' : ''}
+                        </div>
+                    </div>
+                </div>`;
+            }
+            container.innerHTML = html;
+            console.log('=== PARQUES CARGADOS ===');
+        }
+
+        function openParqueFromDB(parqueId) {
+            const parque = CASTELLO_DATABASE.parks.find(p => p.id === parqueId);
+            if (!parque) return;
+
+            parqueActual = parque;
+            const especies = getEspeciesParque(parque.name);
+            const totalArboles = especies.reduce((sum, e) => sum + e.qty, 0);
+
+            document.getElementById('parque-img').src = 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800';
+            document.getElementById('parque-nombre').innerText = parque.name;
+            document.getElementById('parque-ubicacion').innerText = parque.location;
+            document.getElementById('parque-desc').innerText = parque.description + ' Superficie: ' + parque.area;
+            document.getElementById('parque-superficie').innerText = especies.length + ' especies';
+            document.getElementById('parque-arboles').innerText = totalArboles + ' árboles';
+
+            // Especies con rareza
+            if (especies.length > 0) {
+                document.getElementById('parque-especies').innerHTML = especies.map(e =>
+                    `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full">${e.name} (${e.rarity})</span>`
+                ).join('');
+            } else {
+                document.getElementById('parque-especies').innerHTML = '<span class="text-slate-400 text-sm">No hay especies registradas</span>';
+            }
+
+            // Patrocinadores
+            const sponsors = [...new Set(especies.map(e => e.sponsor))];
+            if (sponsors.length > 0) {
+                document.getElementById('parque-servicios').innerHTML = sponsors.map(s =>
+                    `<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-full">🤝 ${s}</span>`
+                ).join('');
+            } else {
+                document.getElementById('parque-servicios').innerHTML = '<span class="text-slate-400 text-sm">Sin patrocinadores</span>';
+            }
+
+            document.getElementById('parque-modal').classList.remove('hidden');
+        }
+
+        function closeParque() {
+            document.getElementById('parque-modal').classList.add('hidden');
+            parqueActual = null;
+        }
+
+        function abrirMapa() {
+            if (parqueActual && parqueActual.coordenadas) {
+                const { lat, lng } = parqueActual.coordenadas;
+                window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+            }
+        }
+
+        // Cargar parques al inicio
+        loadParques();
+
+        // =====================
+        // CATÁLOGO DE ESPECIES
+        // =====================
+        // Cache de imágenes de Wikipedia
+        const imagenesCache = {};
+
+        // Imágenes predefinidas de Wikimedia Commons (URLs verificadas)
+        const IMAGENES_WIKIMEDIA = {
+            "Phytolacca dioica": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Phytolacca_dioica_JPG1b.jpg/440px-Phytolacca_dioica_JPG1b.jpg",
+            "Ceratonia siliqua": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Ceratonia_siliqua%2C_CapoGrecale%2C_Sicily.jpg/440px-Ceratonia_siliqua%2C_CapoGrecale%2C_Sicily.jpg",
+            "Cupressus sempervirens": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Cupressus_sempervirens_-_Serralves.jpg/440px-Cupressus_sempervirens_-_Serralves.jpg",
+            "Lagerstroemia indica": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Lagerstroemia_indica_flowers.jpg/440px-Lagerstroemia_indica_flowers.jpg",
+            "Washingtonia robusta": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Washingtonia_robusta_in_San_Jose.jpg/440px-Washingtonia_robusta_in_San_Jose.jpg",
+            "Celtis australis": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Celtis_australis_JPG1a.jpg/440px-Celtis_australis_JPG1a.jpg",
+            "Platanus x hispanica": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Platane_Kl%C3%A4den.jpg/440px-Platane_Kl%C3%A4den.jpg",
+            "Cedrus libani": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Cedrus_libani_-_K%C3%B6ln_Flora-0170.jpg/440px-Cedrus_libani_-_K%C3%B6ln_Flora-0170.jpg",
+            "Magnolia grandiflora": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Magnolia_grandiflora1Stuart_Yeates.jpg/440px-Magnolia_grandiflora1Stuart_Yeates.jpg",
+            "Quercus ilex": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Quercus_ilex_rotundifolia.jpg/440px-Quercus_ilex_rotundifolia.jpg",
+            "Ficus carica": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Figueira.jpg/440px-Figueira.jpg",
+            "Pinus pinea": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Pinus_pinea_-_Stone_Pine.jpg/440px-Pinus_pinea_-_Stone_Pine.jpg",
+            "Pinus halepensis": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Pinus_halepensis_cones.jpg/440px-Pinus_halepensis_cones.jpg",
+            "Juniperus oxycedrus": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Juniperus_oxycedrus_subsp._macrocarpa%2C_Sardinia.jpg/440px-Juniperus_oxycedrus_subsp._macrocarpa%2C_Sardinia.jpg",
+            "Tetraclinis articulata": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Tetraclinis_articulata_kz01.jpg/440px-Tetraclinis_articulata_kz01.jpg",
+            "Jacaranda mimosifolia": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Jacaranda_mimosifolia_flowers.jpg/440px-Jacaranda_mimosifolia_flowers.jpg",
+            "Acacia dealbata": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Acacia_dealbata-1.jpg/440px-Acacia_dealbata-1.jpg",
+            "Sambucus nigra": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Sambucus_nigra_01.jpg/440px-Sambucus_nigra_01.jpg",
+            "Populus alba": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Populus_alba_Morton.jpg/440px-Populus_alba_Morton.jpg",
+            "Salix alba": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Salix_alba_Morton.jpg/440px-Salix_alba_Morton.jpg",
+            "Nerium oleander": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Nerium_oleander_flowers_leaves.jpg/440px-Nerium_oleander_flowers_leaves.jpg",
+            "Pistacia lentiscus": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Pistacia_lentiscus_g1.jpg/440px-Pistacia_lentiscus_g1.jpg",
+            "Arbutus unedo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Arbutus_unedo_fruits.jpg/440px-Arbutus_unedo_fruits.jpg",
+            "Rhamnus alaternus": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Rhamnus_alaternus.jpg/440px-Rhamnus_alaternus.jpg",
+            "Acer negundo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Acer_negundo_002.JPG/440px-Acer_negundo_002.JPG",
+            "Fraxinus angustifolia": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Fraxinus_angustifolia_subsp._oxycarpa.jpg/440px-Fraxinus_angustifolia_subsp._oxycarpa.jpg",
+            "Liquidambar styraciflua": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Liquidambar_styraciflua_03_by_Line1.jpg/440px-Liquidambar_styraciflua_03_by_Line1.jpg",
+            "Tilia platyphyllos": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Tilia_platyphyllos_002.jpg/440px-Tilia_platyphyllos_002.jpg",
+            "Catalpa bignonioides": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Catalpa_bignonioides1.jpg/440px-Catalpa_bignonioides1.jpg",
+            "Koelreuteria paniculata": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Koelreuteria_paniculata1.jpg/440px-Koelreuteria_paniculata1.jpg",
+            "Hibiscus syriacus": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Hibiscus_syriacus_2.jpg/440px-Hibiscus_syriacus_2.jpg",
+            "Ulmus minor": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Ulmus_minor_morton.jpg/440px-Ulmus_minor_morton.jpg",
+            "Castanea sativa": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Castanea_sativa_001.jpg/440px-Castanea_sativa_001.jpg",
+            "Sorbus aucuparia": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Sorbus_aucuparia_fruit.jpg/440px-Sorbus_aucuparia_fruit.jpg",
+            "Prunus avium": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Sweet_cherry.jpg/440px-Sweet_cherry.jpg",
+            "Ilex aquifolium": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Ilex_aquifolium.jpg/440px-Ilex_aquifolium.jpg",
+            "Laurus nobilis": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Laurus_nobilis_MHNT.jpg/440px-Laurus_nobilis_MHNT.jpg",
+            "Buxus sempervirens": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Buxus_sempervirens_in_garden.jpg/440px-Buxus_sempervirens_in_garden.jpg",
+            "Taxus baccata": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Taxus_baccata01.jpg/440px-Taxus_baccata01.jpg",
+            // Especies adicionales
+            "Atriplex halimus": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Atriplex_halimus_1.jpg/440px-Atriplex_halimus_1.jpg",
+            "Ephedra nevadensis": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Ephedra_nevadensis_3.jpg/440px-Ephedra_nevadensis_3.jpg",
+            "Suaeda vera": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Suaeda_vera.jpg/440px-Suaeda_vera.jpg",
+            "Ammophila arenaria": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Ammophila_arenaria_01.jpg/440px-Ammophila_arenaria_01.jpg",
+            "Spiraea cantoniensis": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Spiraea_cantoniensis_01.jpg/440px-Spiraea_cantoniensis_01.jpg",
+            "Cupressus arizonica": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Cupressus_arizonica_var_glabra.jpg/440px-Cupressus_arizonica_var_glabra.jpg",
+            "Pinus sylvestris": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Pinus_sylvestris_Torthorwald.jpg/440px-Pinus_sylvestris_Torthorwald.jpg",
+            "Abies alba": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Abies_alba_cones.jpg/440px-Abies_alba_cones.jpg",
+            "Thuja occidentalis": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Thuja_occidentalis_Morton.jpg/440px-Thuja_occidentalis_Morton.jpg",
+            "Acer campestre": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Acer_campestre_leaves.jpg/440px-Acer_campestre_leaves.jpg",
+            "Sambucus ebulus": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Sambucus_ebulus_02.jpg/440px-Sambucus_ebulus_02.jpg",
+            "Hedera helix": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Hedera_helix_01.jpg/440px-Hedera_helix_01.jpg",
+            "Vitis vinifera": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Vitis_vinifera_001.jpg/440px-Vitis_vinifera_001.jpg"
+        };
+
+        // Imagen por defecto para especies sin imagen
+        const DEFAULT_TREE_IMG = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Ash_Tree_-_geograph.org.uk_-_590710.jpg/440px-Ash_Tree_-_geograph.org.uk_-_590710.jpg";
+
+        function getImagenEspecie(scientific, name) {
+            return IMAGENES_WIKIMEDIA[scientific] || DEFAULT_TREE_IMG;
+        }
+
+        const DESCRIPCIONES_ESPECIES = {
+            "Legendario": "Especie única y emblemática de Castellón. Un tesoro natural protegido.",
+            "Raro": "Especie poco común en la región mediterránea. Difícil de encontrar.",
+            "Infrecuente": "Especie presente en pocos parques. Requiere atención especial.",
+            "Común": "Especie abundante y adaptada al clima local. Fácil de identificar."
+        };
+
+        let filtroActual = 'todas';
+
+        function loadEspecies(filtro = filtroActual) {
+            filtroActual = filtro;
+            const container = document.getElementById('especies-list');
+            const todas = Object.entries(CASTELLO_DATABASE.speciesMapping);
+
+            const especiesFiltradas = filtro === 'todas'
+                ? todas
+                : todas.filter(([_, data]) => data.rarity === filtro);
+
+            // Actualizar botones de filtro
+            document.querySelectorAll('.filtro-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-emerald-600', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            event?.target?.classList?.remove('bg-slate-100', 'text-slate-600');
+            event?.target?.classList?.add('active', 'bg-emerald-600', 'text-white');
+
+            container.innerHTML = especiesFiltradas.map(([scientific, data]) => {
+                const imagen = getImagenEspecie(scientific, data.name);
+                const colorRareza = {
+                    'Legendario': 'bg-yellow-500',
+                    'Raro': 'bg-purple-500',
+                    'Infrecuente': 'bg-blue-500',
+                    'Común': 'bg-slate-400'
+                }[data.rarity] || 'bg-slate-400';
+
+                return `
+                <div onclick="openEspecie('${scientific}')" class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm active:scale-[0.98] transition cursor-pointer">
+                    <div class="h-24 bg-emerald-100 relative">
+                        <img src="${imagen}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=400'">
+                        <span class="absolute top-2 right-2 ${colorRareza} text-white text-[8px] font-bold px-2 py-0.5 rounded-full">${data.rarity}</span>
+                    </div>
+                    <div class="p-2">
+                        <h4 class="font-black text-sm text-slate-800 truncate">${data.name}</h4>
+                        <p class="text-[9px] text-slate-400 italic truncate">${scientific}</p>
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="text-[9px] text-emerald-600 font-bold">${data.qty} uds</span>
+                            <span class="text-[9px] text-slate-400">${data.park.split(' ').pop()}</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function filtrarEspecies(filtro) {
+            loadEspecies(filtro);
+        }
+
+        function openEspecie(scientific) {
+            const data = CASTELLO_DATABASE.speciesMapping[scientific];
+            if (!data) return;
+
+            const imagen = getImagenEspecie(scientific, data.name);
+            const descripcion = DESCRIPCIONES_ESPECIES[data.rarity] || '';
+            const puntos = {
+                'Legendario': 500,
+                'Raro': 200,
+                'Infrecuente': 125,
+                'Común': 50
+            }[data.rarity] || 50;
+
+            const colorRareza = {
+                'Legendario': 'bg-yellow-500',
+                'Raro': 'bg-purple-500',
+                'Infrecuente': 'bg-blue-500',
+                'Común': 'bg-slate-500'
+            }[data.rarity] || 'bg-slate-500';
+
+            document.getElementById('especie-img').src = imagen;
+            document.getElementById('especie-nombre').innerText = data.name;
+            document.getElementById('especie-cientifico').innerText = scientific;
+            document.getElementById('especie-descripcion').innerText = descripcion;
+            document.getElementById('especie-cantidad').innerText = data.qty;
+            document.getElementById('especie-parque').innerText = data.park.replace('Parque ', '');
+            document.getElementById('especie-puntos').innerText = puntos;
+            document.getElementById('especie-sponsor').innerText = data.sponsor;
+
+            const badge = document.getElementById('especie-rareza-badge');
+            badge.innerText = data.rarity.toUpperCase();
+            badge.className = `absolute top-4 right-4 ${colorRareza} text-white text-[10px] font-bold px-3 py-1 rounded-full`;
+
+            document.getElementById('especie-modal').classList.remove('hidden');
+        }
+
+        function closeEspecie() {
+            document.getElementById('especie-modal').classList.add('hidden');
+        }
+
+        // =====================
+        // SERVICE WORKER
+        // =====================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registrado'))
+                    .catch(err => console.log('Service Worker no disponible'));
+            });
+        }
+    </script>
+</body>
+</html>

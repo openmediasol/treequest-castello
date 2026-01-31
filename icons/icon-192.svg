@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#059669"/>
+      <stop offset="100%" style="stop-color:#047857"/>
+    </linearGradient>
+    <linearGradient id="treeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#d1fae5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="192" height="192" rx="42" fill="url(#bgGrad)"/>
+
+  <!-- Abstract Tree Mark -->
+  <g transform="translate(96, 96)">
+    <!-- Main trunk/stem -->
+    <rect x="-6" y="10" width="12" height="50" rx="6" fill="url(#treeGrad)" opacity="0.95"/>
+
+    <!-- Canopy circles - geometric modern style -->
+    <circle cx="0" cy="-25" r="35" fill="url(#treeGrad)" opacity="0.95"/>
+    <circle cx="-28" cy="5" r="22" fill="url(#treeGrad)" opacity="0.85"/>
+    <circle cx="28" cy="5" r="22" fill="url(#treeGrad)" opacity="0.85"/>
+
+    <!-- Accent leaf detail -->
+    <path d="M-8,-45 Q0,-60 8,-45 Q0,-35 -8,-45" fill="#10b981" opacity="0.6"/>
+  </g>
+
+  <!-- Subtle ring accent -->
+  <circle cx="96" cy="96" r="80" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.15"/>
+</svg>
