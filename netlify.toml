@@ -17,6 +17,11 @@
   to = "/.netlify/functions/identify"
   status = 200
 
+[[redirects]]
+  from = "/api/proxy-image"
+  to = "/.netlify/functions/proxy-image"
+  status = 200
+
 # Headers CORS para funciones
 [[headers]]
   for = "/.netlify/functions/*"
