@@ -7,6 +7,9 @@
     <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <!-- Leaflet para mapas interactivos -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="database.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap');
@@ -144,10 +147,10 @@
     <!-- MODAL DETALLE ESPECIE -->
     <div id="especie-modal" class="fixed inset-0 bg-white z-[200] hidden overflow-y-auto">
         <div class="relative">
-            <div class="h-72 bg-emerald-200 relative flex items-center justify-center">
+            <div id="especie-img-container" class="h-[400px] bg-emerald-200 relative flex items-center justify-center">
                 <span class="text-8xl absolute z-0">🌲</span>
                 <img id="especie-img" src="" class="w-full h-full object-cover relative z-10" onerror="this.style.opacity='0'">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-20"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-20 pointer-events-none"></div>
                 <button onclick="closeEspecie()" class="absolute top-4 left-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-xl font-bold z-30">✕</button>
                 <div id="especie-rareza-badge" class="absolute top-4 right-4 bg-purple-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-full z-30">LEGENDARIO</div>
             </div>
@@ -215,7 +218,7 @@
     <div id="parque-modal" class="fixed inset-0 bg-white z-[200] hidden overflow-y-auto">
         <div class="relative">
             <!-- Imagen de cabecera -->
-            <div class="h-56 bg-emerald-100 relative">
+            <div class="h-[400px] bg-emerald-100 relative">
                 <img id="parque-img" src="" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 <button onclick="closeParque()" class="absolute top-4 left-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-xl font-bold">✕</button>
@@ -856,7 +859,22 @@
             const especies = getEspeciesParque(parque.name);
             const totalArboles = especies.reduce((sum, e) => sum + e.qty, 0);
 
-            document.getElementById('parque-img').src = 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800';
+            // Imágenes específicas por parque
+            const imagenesParques = {
+                'sensal': 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800', // Jardín botánico
+                'ribalta': 'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=800', // Parque clásico
+                'pinar': 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=800', // Bosque de pinos
+                'litoral': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', // Playa/dunas
+                'royo': 'https://images.unsplash.com/photo-1476611338391-6f395a0ebc7b?w=800', // Río con árboles
+                'auditorio': 'https://images.unsplash.com/photo-1552083375-1447ce886485?w=800', // Parque urbano
+                'comunicaciones': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800', // Parque ciudad
+                'merida': 'https://images.unsplash.com/photo-1568454537842-d933259bb258?w=800', // Zona deportiva verde
+                'meridiano': 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800', // Vegetación mediterránea
+                'panderola': 'https://images.unsplash.com/photo-1446329813274-7c9036bd9a1f?w=800', // Naturaleza senderos
+                'pontdeferro': 'https://images.unsplash.com/photo-1530631673369-bc20fdb32288?w=800', // Puente con agua
+                'rafalafena': 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800'  // Bosque nativo
+            };
+            document.getElementById('parque-img').src = imagenesParques[parque.id] || 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800';
             document.getElementById('parque-nombre').innerText = parque.name;
             document.getElementById('parque-ubicacion').innerText = parque.location;
             document.getElementById('parque-desc').innerText = parque.description + ' Superficie: ' + parque.area;
@@ -903,94 +921,29 @@
         // =====================
         // CATÁLOGO DE ESPECIES
         // =====================
-        // Cache de imágenes de Wikipedia
-        const imagenesCache = {};
+        // Cache de URLs de imágenes obtenidas de Wikipedia
+        const imageCache = {};
 
-        // URLs de imágenes de Wikimedia Commons (usando proxy para evitar CORS)
-        const IMAGENES_ESPECIES = {
-            // Parque Sensal - Legendario y especiales
-            "Phytolacca dioica": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Phytolacca_dioica_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-246.jpg/400px-Phytolacca_dioica_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-246.jpg",
-            "Ceratonia siliqua": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Ceratonia_siliqua%2C_OU.jpg/400px-Ceratonia_siliqua%2C_OU.jpg",
-            "Cupressus sempervirens": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Cupressus_sempervirens_Shalimar_Bagh.jpg/400px-Cupressus_sempervirens_Shalimar_Bagh.jpg",
-            "Lagerstroemia indica": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Lagerstroemia_indica2.jpg/400px-Lagerstroemia_indica2.jpg",
-            "Washingtonia robusta": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Mexican_Fan_Palm.jpg/400px-Mexican_Fan_Palm.jpg",
+        // Función asíncrona para obtener imagen de Wikipedia
+        async function getImagenEspecie(scientific) {
+            // Verificar cache primero
+            if (imageCache[scientific]) {
+                return imageCache[scientific];
+            }
 
-            // Parque Ribalta
-            "Celtis australis": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Celtis_australis.jpg/400px-Celtis_australis.jpg",
-            "Platanus x hispanica": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Platanus_x_hispanica_MHNT.jpg/400px-Platanus_x_hispanica_MHNT.jpg",
-            "Cedrus libani": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Cedrus_libani_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-191.jpg/400px-Cedrus_libani_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-191.jpg",
-            "Magnolia grandiflora": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Magnolia_grandiflora1.jpg/400px-Magnolia_grandiflora1.jpg",
-            "Quercus ilex": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Quercus_ilex_rotundifolia.jpg/400px-Quercus_ilex_rotundifolia.jpg",
-            "Ficus carica": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Ficus_carica_L%2C_1771.jpg/400px-Ficus_carica_L%2C_1771.jpg",
-
-            // El Pinar - Coníferas
-            "Pinus pinea": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Pinus_pinea_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-231.jpg/400px-Pinus_pinea_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-231.jpg",
-            "Pinus halepensis": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Pinus_halepensis_JPG1a.jpg/400px-Pinus_halepensis_JPG1a.jpg",
-            "Juniperus oxycedrus": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Juniperus_oxycedrus_subsp_macrocarpa_g1.jpg/400px-Juniperus_oxycedrus_subsp_macrocarpa_g1.jpg",
-            "Tetraclinis articulata": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Tetraclinis_articulata.jpg/400px-Tetraclinis_articulata.jpg",
-
-            // Parque Litoral - Plantas costeras
-            "Atriplex halimus": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Atriplex_halimus_0zz.jpg/400px-Atriplex_halimus_0zz.jpg",
-            "Ephedra nevadensis": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Ephedra_nevadensis_3.jpg/400px-Ephedra_nevadensis_3.jpg",
-            "Suaeda vera": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Suaeda_vera.jpg/400px-Suaeda_vera.jpg",
-            "Ammophila arenaria": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Ammophila_arenaria_%28Marram_Grass%29_-_geograph.org.uk_-_869826.jpg/400px-Ammophila_arenaria_%28Marram_Grass%29_-_geograph.org.uk_-_869826.jpg",
-
-            // Parque Geólogo José Royo
-            "Jacaranda mimosifolia": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Jacaranda_mimosifolia_-_Serres_d%27Auteuil_-_2014-04-16.jpg/400px-Jacaranda_mimosifolia_-_Serres_d%27Auteuil_-_2014-04-16.jpg",
-            "Acacia dealbata": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Acacia_dealbata-1.jpg/400px-Acacia_dealbata-1.jpg",
-            "Sambucus nigra": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Sambucus_nigra_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-127.jpg/400px-Sambucus_nigra_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-127.jpg",
-            "Populus alba": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Populus_alba_JPG1a.jpg/400px-Populus_alba_JPG1a.jpg",
-            "Salix alba": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Salix_alba_%27Tristis%27_006.JPG/400px-Salix_alba_%27Tristis%27_006.JPG",
-
-            // Parque Auditorio
-            "Nerium oleander": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Nerium_oleander_flowers_leaves.jpg/400px-Nerium_oleander_flowers_leaves.jpg",
-            "Pistacia lentiscus": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Pistacia_lentiscus_g1.jpg/400px-Pistacia_lentiscus_g1.jpg",
-            "Arbutus unedo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Arbutus_unedo_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-015.jpg/400px-Arbutus_unedo_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-015.jpg",
-            "Rhamnus alaternus": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Rhamnus_alaternus_g1.jpg/400px-Rhamnus_alaternus_g1.jpg",
-
-            // Parque Comunicaciones
-            "Acer negundo": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Acer_negundo_001.JPG/400px-Acer_negundo_001.JPG",
-            "Fraxinus angustifolia": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Fraxinus_angustifolia_subsp._oxycarpa_-_Jardin_des_Plantes.jpg/400px-Fraxinus_angustifolia_subsp._oxycarpa_-_Jardin_des_Plantes.jpg",
-            "Liquidambar styraciflua": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Liquidambar_styraciflua.jpg/400px-Liquidambar_styraciflua.jpg",
-            "Tilia platyphyllos": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Tilia_platyphyllos_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-138.jpg/400px-Tilia_platyphyllos_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-138.jpg",
-
-            // Parque Mérida
-            "Catalpa bignonioides": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Catalpa_bignonioides_001.JPG/400px-Catalpa_bignonioides_001.JPG",
-            "Koelreuteria paniculata": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Koelreuteria_paniculata1.jpg/400px-Koelreuteria_paniculata1.jpg",
-            "Hibiscus syriacus": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Hibiscus_syriacus_%27Blue_Bird%27.jpg/400px-Hibiscus_syriacus_%27Blue_Bird%27.jpg",
-            "Spiraea cantoniensis": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Spiraea_cantoniensis1.jpg/400px-Spiraea_cantoniensis1.jpg",
-
-            // Parque Meridiano
-            "Cupressus arizonica": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Cupressus_arizonica_Sedona.jpg/400px-Cupressus_arizonica_Sedona.jpg",
-            "Pinus sylvestris": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Pinus_sylvestris_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-230.jpg/400px-Pinus_sylvestris_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-230.jpg",
-            "Abies alba": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Abies_alba_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-152.jpg/400px-Abies_alba_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-152.jpg",
-            "Thuja occidentalis": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Thuja_occidentalis_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-268.jpg/400px-Thuja_occidentalis_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-268.jpg",
-
-            // Parque Panderola
-            "Ulmus minor": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Ulmus_minor_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-143.jpg/400px-Ulmus_minor_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-143.jpg",
-            "Castanea sativa": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Castanea_sativa_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-062.jpg/400px-Castanea_sativa_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-062.jpg",
-            "Sorbus aucuparia": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Sorbus_aucuparia_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-262.jpg/400px-Sorbus_aucuparia_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-262.jpg",
-            "Prunus avium": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Prunus_avium_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-250.jpg/400px-Prunus_avium_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-250.jpg",
-
-            // Parque Pont de Ferro
-            "Acer campestre": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Acer_campestre_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-158.jpg/400px-Acer_campestre_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-158.jpg",
-            "Sambucus ebulus": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Sambucus_ebulus_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-263.jpg/400px-Sambucus_ebulus_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-263.jpg",
-            "Hedera helix": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Hedera_helix_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-091.jpg/400px-Hedera_helix_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-091.jpg",
-            "Vitis vinifera": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Vitis_vinifera_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-283.jpg/400px-Vitis_vinifera_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-283.jpg",
-
-            // Parque Rafalafena
-            "Ilex aquifolium": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Ilex_aquifolium_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-097.jpg/400px-Ilex_aquifolium_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-097.jpg",
-            "Laurus nobilis": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Laurus_nobilis_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-103.jpg/400px-Laurus_nobilis_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-103.jpg",
-            "Buxus sempervirens": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Buxus_sempervirens_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-052.jpg/400px-Buxus_sempervirens_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-052.jpg",
-            "Taxus baccata": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Taxus_baccata_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-125.jpg/400px-Taxus_baccata_-_K%C3%B6hler%E2%80%93s_Medizinal-Pflanzen-125.jpg"
-        };
-
-        // Función para obtener imagen
-        function getImagenEspecie(scientific, name) {
-            const url = IMAGENES_ESPECIES[scientific];
-            if (!url) return null;
-            // Usar proxy para evitar CORS
-            return '/api/proxy-image?url=' + encodeURIComponent(url);
+            try {
+                const response = await fetch('/api/proxy-image?species=' + encodeURIComponent(scientific));
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.imageUrl) {
+                        imageCache[scientific] = data.imageUrl;
+                        return data.imageUrl;
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching image for', scientific, error);
+            }
+            return null;
         }
 
         // Información técnica completa para cada especie
@@ -1170,11 +1123,10 @@
             loadEspecies(filtro);
         }
 
-        function openEspecie(scientific) {
+        async function openEspecie(scientific) {
             const data = CASTELLO_DATABASE.speciesMapping[scientific];
             if (!data) return;
 
-            const imagen = getImagenEspecie(scientific, data.name);
             // Usar descripción específica de la especie
             const descripcion = DESCRIPCIONES_ESPECIES[scientific] || `Especie ${data.rarity.toLowerCase()} presente en ${data.park}. ${data.qty} ejemplares catalogados.`;
             const puntos = {
@@ -1191,14 +1143,26 @@
                 'Común': 'bg-slate-500'
             }[data.rarity] || 'bg-slate-500';
 
-            // Manejar imagen con fallback
+            // Manejar imagen - mostrar emoji mientras carga
             const imgElement = document.getElementById('especie-img');
-            if (imagen) {
-                imgElement.src = imagen;
-                imgElement.style.display = 'block';
-            } else {
-                imgElement.style.display = 'none';
+            const emojiElement = document.querySelector('#especie-img-container > span');
+            const emoji = {'Legendario': '🌟', 'Raro': '💎', 'Infrecuente': '🌿', 'Común': '🌳'}[data.rarity] || '🌳';
+
+            // Resetear imagen y mostrar emoji de carga
+            if (emojiElement) emojiElement.textContent = emoji;
+            if (imgElement) {
+                imgElement.style.opacity = '0';
+                imgElement.src = '';
             }
+
+            // Cargar imagen de Wikipedia de forma asíncrona
+            getImagenEspecie(scientific).then(imageUrl => {
+                if (imgElement && imageUrl) {
+                    imgElement.onload = () => { imgElement.style.opacity = '1'; };
+                    imgElement.onerror = () => { imgElement.style.opacity = '0'; };
+                    imgElement.src = imageUrl;
+                }
+            });
             document.getElementById('especie-nombre').innerText = data.name;
             document.getElementById('especie-cientifico').innerText = scientific;
             document.getElementById('especie-descripcion').innerText = descripcion;
